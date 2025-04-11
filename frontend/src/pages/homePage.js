@@ -68,14 +68,23 @@ const Home = ({ setUserEmail }) => {
 
   return (
     <>
-      <div className="min-h-screen flex flex-row justify-between items-start bg-white px-10 pt-12">
+      <div
+  className="w-full flex flex-row justify-between items-start bg-white px-10 pt-12"
+  style={{
+    backgroundImage: "url('/images/cre8path_bg.png')",
+    height: '500px',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  }}
+>
         {/* Left: User Message */}
         <div className="w-1/2">
-          <h1 className="text-3xl font-semibold">Learn. Share. Grow.</h1>
+          <h1 className="text-3xl font-semibold"></h1>
         </div>
   
         {/* Right: Login Section */}
         <div className="w-1/2 flex flex-col items-end pr-6">
+        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 w-full max-w-sm shadow-lg">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-800">
               Get 7 free days of Cre8Path
@@ -103,10 +112,12 @@ const Home = ({ setUserEmail }) => {
               className="flex items-center justify-center w-full py-2 border rounded text-gray-800 hover:bg-gray-100"
             >
               <img
-                src="https://www.svgrepo.com/show/157806/facebook.svg"
-                alt="Facebook"
-                className="h-5 w-5 mr-2"
-              />
+  src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+  alt="Facebook"
+  className="h-5 w-5 mr-2"
+/>
+
+              
               Continue with Facebook
             </a>
   
@@ -114,11 +125,12 @@ const Home = ({ setUserEmail }) => {
               href="http://localhost:8080/oauth2/authorization/github"
               className="flex items-center justify-center w-full py-2 border rounded text-gray-800 hover:bg-gray-100"
             >
-              <img
-                src="https://www.svgrepo.com/show/382676/github.svg"
-                alt="GitHub"
-                className="h-5 w-5 mr-2"
-              />
+             <img
+  src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
+  alt="GitHub"
+  className="h-5 w-5 mr-2"
+/>
+
               Continue with GitHub
             </a>
   
@@ -131,7 +143,7 @@ const Home = ({ setUserEmail }) => {
             </button>
           </div>
   
-          <p className="mt-8 text-xs text-center text-gray-500 max-w-sm">
+          <p className="mt-8 text-xs text-center text-black-500 max-w-sm">
             By signing up you agree to Cre8Path's{" "}
             <span className="underline">Terms of Service</span> and{" "}
             <span className="underline">Privacy Policy</span>. This site is
@@ -139,6 +151,7 @@ const Home = ({ setUserEmail }) => {
             <span className="underline">Terms of Service</span> and{" "}
             <span className="underline">Privacy Policy</span>.
           </p>
+        </div>
         </div>
       </div>
   
