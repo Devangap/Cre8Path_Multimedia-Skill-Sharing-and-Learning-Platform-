@@ -84,7 +84,7 @@ const Home = ({ setUserEmail }) => {
   
         {/* Right: Login Section */}
         <div className="w-1/2 flex flex-col items-end pr-6">
-        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 w-full max-w-sm shadow-lg">
+        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-6 w-full max-w-sm shadow-lg">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-800">
               Get 7 free days of Cre8Path
