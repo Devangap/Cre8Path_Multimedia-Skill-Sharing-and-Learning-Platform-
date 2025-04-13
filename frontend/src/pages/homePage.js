@@ -34,36 +34,53 @@ const Home = ({ setUserEmail }) => {
   
   
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (isSignUpMode && password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-  
-    const endpoint = isSignUpMode
-      ? "http://localhost:8080/api/v1/demo/signup"
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      : "http://localhost:8080/api/v1/demo/signin";
-  
+  if (isSignUpMode && password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  const endpoint = isSignUpMode
+    ? "http://localhost:8080/api/v1/demo/signup"
+    : "http://localhost:8080/api/v1/demo/signin";
+
+  try {
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include", // Ensure cookies are sent
       body: JSON.stringify({ email, password }),
     });
-  
+
     const msg = await res.text();
     alert(msg);
-  
+
     if (res.ok) {
       setShowEmailSignup(false);
       setUserEmail(email);
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+
+      // Fetch user details to update UI
+      const userRes = await fetch("http://localhost:8080/api/v1/demo/me", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (userRes.ok) {
+        const data = await userRes.json();
+        const display = data.name ? data.name : data.email;
+        setUserMessage(`Welcome, ${display}!`);
+        setUserEmail(display);
+        localStorage.setItem("userIdentifier", display);
+      }
     }
-  };
+  } catch (error) {
+    alert("An error occurred. Please try again.");
+  }
+};
   
 
   return (
@@ -84,7 +101,7 @@ const Home = ({ setUserEmail }) => {
   
         {/* Right: Login Section */}
         <div className="w-1/2 flex flex-col items-end pr-6">
-        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 w-full max-w-sm shadow-lg">
+        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-6 w-full max-w-sm shadow-lg">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-800">
               Get 7 free days of Cre8Path
