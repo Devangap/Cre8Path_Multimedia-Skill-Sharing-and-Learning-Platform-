@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/homePage';
+import Questionnaire from './pages/Questionnaire'; 
 
 function App() {
   const [userEmail, setUserEmail] = useState("");
@@ -13,14 +15,17 @@ function App() {
 
   const handleSetUserEmail = (email) => {
     setUserEmail(email);
-    localStorage.setItem("userEmail", email); // persist email
+    localStorage.setItem("userEmail", email);
   };
 
   return (
-    <>
+    <Router>
       <Navbar userEmail={userIdentifier} />
-      <Home setUserEmail={setUserIdentifier} />
-    </>
+      <Routes>
+        <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
+        <Route path="/questionnaire" element={<Questionnaire />} />
+      </Routes>
+    </Router>
   );
 }
 
