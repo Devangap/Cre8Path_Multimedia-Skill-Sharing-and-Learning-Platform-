@@ -1,7 +1,5 @@
 package com.projectPAF.Cre8Path.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,22 +17,22 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password") // Remove nullable = false
     private String password;
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
+
     public String getPassword() {
         return password;
     }
-
-
-
-//    private String role = "USER";
 }
-
