@@ -1,0 +1,43 @@
+package com.projectPAF.Cre8Path.model;
+
+import java.sql.Date;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Column;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "learningp")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class Learningp {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "UserId")
+    private Long user_id;
+
+    @Column(name = "CourseId")
+    private Long course_id;
+
+    @Column(name = "Start Date")
+    private Date start_date;
+    
+    @Column(name = "End Date")
+    private Date end_date;
+    
+    @Column(name = "Progress Status")
+    private String status;
+
+}

@@ -1,24 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './pages/homePage';
+import Questionnaire from './pages/Questionnaire'; 
+
+import PostUpload from './components/PostUpload';
+import PostLogin from './pages/PostLogin';
+
 
 function App() {
+  const [userIdentifier, setUserIdentifier] = useState(localStorage.getItem('userIdentifier') || '');
+  const [userEmail, setUserEmail] = useState("");
+ 
+
+  useEffect(() => {
+    const savedIdentifier = localStorage.getItem('userIdentifier');
+    if (savedIdentifier) setUserIdentifier(savedIdentifier);
+  }, []);
+
+
+  const handleSetUserEmail = (email) => {
+    setUserEmail(email);
+    localStorage.setItem("userEmail", email);
+
+//   const handleSetUserIdentifier = (identifier) => {
+//     setUserIdentifier(identifier);
+//     localStorage.setItem('userIdentifier', identifier);
+
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Navbar userEmail={userIdentifier} />
+      <Routes>
+  <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
+  <Route path="/questionnaire" element={<Questionnaire />} />
+  <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
+  <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> {/* ✅ THIS */}
+</Routes>
+    </Router>
   );
 }
 
