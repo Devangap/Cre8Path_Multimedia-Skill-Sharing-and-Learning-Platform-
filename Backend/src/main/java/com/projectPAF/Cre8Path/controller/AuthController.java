@@ -121,23 +121,28 @@ public class AuthController {
         }
 
         if (principal instanceof OAuth2User oauthUser) {
-            response.put("name", oauthUser.getAttribute("name"));
-            response.put("email", oauthUser.getAttribute("email"));
-            System.out.println("OAuth2 user accessed /me: " + response.get("email"));
+            String name = oauthUser.getAttribute("name"); // e.g., "Devanga Palliyaguru"
+            String login = oauthUser.getAttribute("login"); // e.g., "Devangap" (GitHub username)
+            String email = oauthUser.getAttribute("email"); // May be null for GitHub
+
+            // Prefer name, then login
+            response.put("name", name != null ? name : login);
+            response.put("username", login);
+            response.put("email", email); // This may be null
+
+            System.out.println("OAuth2 user accessed /me: " + (email != null ? email : login));
         } else if (principal instanceof org.springframework.security.core.userdetails.User user) {
             response.put("email", user.getUsername());
             response.put("name", user.getUsername());
+            response.put("username", user.getUsername());
+
             System.out.println("Email user accessed /me: " + user.getUsername());
         } else {
             System.out.println("Unknown principal type: " + principal.getClass());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
-        if (response.get("email") == null) {
-            System.out.println("Email is null for principal: " + principal);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         return ResponseEntity.ok(response);
     }
+
 }
