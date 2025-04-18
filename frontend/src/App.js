@@ -10,6 +10,8 @@ import PostUpload from './components/PostUpload';
 
 function App() {
   const [userIdentifier, setUserIdentifier] = useState(localStorage.getItem('userIdentifier') || '');
+  const [userEmail, setUserEmail] = useState("");
+ 
 
   useEffect(() => {
     const savedIdentifier = localStorage.getItem('userIdentifier');
