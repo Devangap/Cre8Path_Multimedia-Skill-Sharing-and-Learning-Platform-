@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class PostController {
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createPost(
             @RequestBody Map<String, Object> postData,
-            @AuthenticationPrincipal OAuth2User principal
+            Principal principal
     ) {
         logger.info("Received request to create post: {}", postData);
         Map<String, String> response = new HashMap<>();
@@ -44,7 +45,8 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        String email = principal.getAttribute("email");
+        String email = principal.getName();
+        logger.info("Creating post for user: {}", email);
         if (email == null) {
             logger.warn("Email not found in OAuth2 principal.");
             response.put("error", "Unable to retrieve user email from authentication.");
