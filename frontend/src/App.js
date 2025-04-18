@@ -6,10 +6,13 @@ import Home from './pages/homePage';
 import Questionnaire from './pages/Questionnaire'; 
 
 import PostUpload from './components/PostUpload';
+import PostLogin from './pages/PostLogin';
 
 
 function App() {
   const [userIdentifier, setUserIdentifier] = useState(localStorage.getItem('userIdentifier') || '');
+  const [userEmail, setUserEmail] = useState("");
+ 
 
   useEffect(() => {
     const savedIdentifier = localStorage.getItem('userIdentifier');
@@ -31,13 +34,11 @@ function App() {
     <Router>
       <Navbar userEmail={userIdentifier} />
       <Routes>
-
-        <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
-        <Route path="/questionnaire" element={<Questionnaire />} />
-
-        <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
-
-      </Routes>
+  <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
+  <Route path="/questionnaire" element={<Questionnaire />} />
+  <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
+  <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> {/* ✅ THIS */}
+</Routes>
     </Router>
   );
 }
