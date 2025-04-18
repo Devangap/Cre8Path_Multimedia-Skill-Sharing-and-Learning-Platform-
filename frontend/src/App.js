@@ -11,10 +11,7 @@ import PostUpload from './components/PostUpload';
 function App() {
   const [userIdentifier, setUserIdentifier] = useState(localStorage.getItem('userIdentifier') || '');
   const [userEmail, setUserEmail] = useState("");
-<<<<<<< Updated upstream
  
-=======
->>>>>>> Stashed changes
 
   useEffect(() => {
     const savedIdentifier = localStorage.getItem('userIdentifier');
@@ -39,7 +36,6 @@ function App() {
 
         <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
-
         <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
 
       </Routes>
