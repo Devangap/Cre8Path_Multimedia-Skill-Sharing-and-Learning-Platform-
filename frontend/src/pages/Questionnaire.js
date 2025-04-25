@@ -66,14 +66,21 @@ const Questionnaire = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+      // ✅ When finished answering all questions:
       fetch("http://localhost:8080/api/v1/demo/complete-questionnaire", {
         method: "POST",
         credentials: "include",
+      })
+      .then(() => {
+        localStorage.setItem("questionnaireCompleted", "true"); // Mark complete locally
+        setSubmitted(true); // Show Thank you message
+      })
+      .catch(() => {
+        alert("Something went wrong while saving your preferences.");
       });
-  
-      setSubmitted(true);
     }
   };
+  
   
 
   if (submitted) {

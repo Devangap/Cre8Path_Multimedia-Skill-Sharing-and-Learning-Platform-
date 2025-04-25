@@ -1,4 +1,3 @@
-// src/pages/PostLogin.jsx
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,10 +14,18 @@ const PostLogin = ({ setUserEmail }) => {
         return res.json();
       })
       .then((data) => {
+        console.log("Post-login fetched user:", data); // 🛠️ Debugging
         const display = data.name || data.email;
         localStorage.setItem("userIdentifier", display);
         setUserEmail(display);
-        navigate("/"); // Redirect to homepage or dashboard
+
+        if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
+          localStorage.setItem("questionnaireCompleted", "false");
+          navigate("/questionnaire"); // ✅ Go to questionnaire if first time
+        } else {
+          localStorage.setItem("questionnaireCompleted", "true");
+          navigate("/"); // ✅ Else go to home
+        }
       })
       .catch((err) => {
         console.error("OAuth post-login error:", err);
