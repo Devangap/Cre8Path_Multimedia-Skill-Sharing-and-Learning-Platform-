@@ -1,7 +1,5 @@
 package com.projectPAF.Cre8Path.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +17,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password") // Remove nullable = false
     private String password;
     @Column(name = "first_time_login", nullable = false)
     private boolean firstTimeLogin = true; // <- This sets the default in Java
@@ -32,14 +30,18 @@ public class User {
         this.email = email;
     }
 
+
     public String getEmail() {return email;}
+
 
     public void setPassword(String password) {
         this.password = password;
     }
+
     public String getPassword() {
         return password;
     }
+
 
 //    public void setFirstTimeLogin(boolean firstTimeLogin) {
 //        this.firstTimeLogin = firstTimeLogin;
@@ -62,4 +64,5 @@ public class User {
 
 //    private String role = "USER";
 }
+
 
