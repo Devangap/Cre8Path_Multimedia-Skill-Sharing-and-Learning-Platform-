@@ -8,6 +8,9 @@ import Questionnaire from './pages/Questionnaire';
 import PostUpload from './components/PostUpload';
 import PostLogin from './pages/PostLogin';
 
+import LearningpList from './pages/Learningp/LearningpList';
+import LearningpCreate from './pages/Learningp/LearningpCreate';
+import LearningpEdit from './pages/Learningp/LearningpEdit';
 
 function App() {
   const [userIdentifier, setUserIdentifier] = useState(localStorage.getItem('userIdentifier') || '');
@@ -38,6 +41,9 @@ function App() {
   <Route path="/questionnaire" element={<Questionnaire />} />
   <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
   <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> {/* ✅ THIS */}
+  <Route path="/learningp" element={<LearningpList />} />
+  <Route path="/learningp/create" element={<LearningpCreate />} />
+  <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
 </Routes>
     </Router>
   );
