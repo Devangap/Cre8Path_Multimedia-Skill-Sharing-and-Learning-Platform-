@@ -1,6 +1,6 @@
 package com.projectPAF.Cre8Path.controller;
 
-import com.projectPAF.Cre8Path.Repository.UserRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
