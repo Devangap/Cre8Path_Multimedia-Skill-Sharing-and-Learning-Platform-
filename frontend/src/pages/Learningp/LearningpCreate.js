@@ -14,7 +14,6 @@ const LearningpCreate = () => {
 
   return (
     <div>
-      <h1>Create Learning Progress</h1>
       <LearningpForm onSubmit={handleCreate} />
     </div>
   );
