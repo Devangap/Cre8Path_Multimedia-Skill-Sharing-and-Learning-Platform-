@@ -25,10 +25,10 @@ public class Learningp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "UserId")
+    @Column(name = "UserId",nullable = true)
     private Long user_id;
 
-    @Column(name = "CourseId")
+    @Column(name = "CourseId",nullable = true)
     private Long course_id;
 
     @Column(name = "Start Date")
