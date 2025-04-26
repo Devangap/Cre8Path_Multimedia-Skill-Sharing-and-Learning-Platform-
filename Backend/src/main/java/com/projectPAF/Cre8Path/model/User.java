@@ -1,40 +1,27 @@
 package com.projectPAF.Cre8Path.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "oauth_id", unique = true)
+    private String oauthId;
+
+    @Column(unique = true, nullable = true)
     private String email;
 
-    @Column(nullable = false)
-    private String password;
+    @Column(name = "password")
+    private String password; // Should stay String
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public String getPassword() {
-        return password;
-    }
-
-
-
-//    private String role = "USER";
+    @Column(name = "first_time_login", nullable = false)
+    private boolean firstTimeLogin = true;
 }
-
