@@ -2,7 +2,9 @@ package com.projectPAF.Cre8Path.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.projectPAF.Cre8Path.repository.ProfileRepository;
+
 import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.model.User;
