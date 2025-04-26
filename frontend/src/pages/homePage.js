@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; 
 
 const Home = ({ setUserEmail }) => {
+  const navigate = useNavigate();
   const [userMessage, setUserMessage] = useState("Welcome to Cre8Path!");
   const [showEmailSignup, setShowEmailSignup] = useState(false);
   const [isSignUpMode, setIsSignUpMode] = useState(true);
@@ -22,65 +23,83 @@ const Home = ({ setUserEmail }) => {
         return res.json();
       })
       .then((data) => {
-        const display = data.name ? data.name : data.email;
-        setUserMessage(`Welcome, ${display}!`);
-        setUserEmail(display); 
-        localStorage.setItem("userIdentifier", display);
-      })
-      .catch(() => {
-        setUserMessage("Please sign in to access full features.");
-      });
-  }, []);
-  
-  
-
- const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (isSignUpMode && password !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
-
-  const endpoint = isSignUpMode
-    ? "http://localhost:8080/api/v1/demo/signup"
-    : "http://localhost:8080/api/v1/demo/signin";
-
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // Ensure cookies are sent
-      body: JSON.stringify({ email, password }),
-    });
-
-    const msg = await res.text();
-    alert(msg);
-
-    if (res.ok) {
-      setShowEmailSignup(false);
-      setUserEmail(email);
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-
-      // Fetch user details to update UI
-      const userRes = await fetch("http://localhost:8080/api/v1/demo/me", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (userRes.ok) {
-        const data = await userRes.json();
+        console.log("Fetched user data:", data); // 🛠️ Debugging line
         const display = data.name ? data.name : data.email;
         setUserMessage(`Welcome, ${display}!`);
         setUserEmail(display);
         localStorage.setItem("userIdentifier", display);
-      }
+  
+       
+        if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
+          localStorage.setItem("questionnaireCompleted", "false");
+          navigate("/questionnaire"); // 🚀 Route to questionnaire
+        } else {
+          localStorage.setItem("questionnaireCompleted", "true");
+        }
+      })
+      .catch(() => {
+        setUserMessage("Please sign in to access full features.");
+      });
+  }, [setUserEmail]);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (isSignUpMode && password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
     }
-  } catch (error) {
-    alert("An error occurred. Please try again.");
-  }
-};
+  
+    const endpoint = isSignUpMode
+      ? "http://localhost:8080/api/v1/demo/signup"
+      : "http://localhost:8080/api/v1/demo/signin";
+  
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const msg = await res.text();
+      alert(msg);
+  
+      if (res.ok) {
+        setShowEmailSignup(false);
+        setUserEmail(email);
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+  
+        // 🔥 Fetch user details after login/signup
+        const userRes = await fetch("http://localhost:8080/api/v1/demo/me", {
+          method: "GET",
+          credentials: "include",
+        });
+  
+        if (userRes.ok) {
+          const data = await userRes.json();
+          console.log("Fetched after signup/login:", data); // Debug
+          const display = data.name ? data.name : data.email;
+          setUserMessage(`Welcome, ${display}!`);
+          setUserEmail(display);
+          localStorage.setItem("userIdentifier", display);
+  
+          // 🔥 Check real firstTimeLogin from server
+          if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
+            localStorage.setItem("questionnaireCompleted", "false");
+            navigate("/questionnaire");
+          } else {
+            localStorage.setItem("questionnaireCompleted", "true");
+            navigate("/"); // Or stay on home
+          }
+        }
+      }
+    } catch (error) {
+      alert("An error occurred. Please try again.");
+    }
+  };
   
 
   return (
