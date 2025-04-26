@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const questions = [
   {
@@ -34,6 +35,7 @@ const questions = [
 ];
 
 const Questionnaire = () => {
+  const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -66,14 +68,21 @@ const Questionnaire = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+      // ✅ When finished answering all questions:
       fetch("http://localhost:8080/api/v1/demo/complete-questionnaire", {
         method: "POST",
         credentials: "include",
+      })
+      .then(() => {
+        localStorage.setItem("questionnaireCompleted", "true"); // Mark complete locally
+        navigate("/profile-form");
+      })
+      .catch(() => {
+        alert("Something went wrong while saving your preferences.");
       });
-  
-      setSubmitted(true);
     }
   };
+  
   
 
   if (submitted) {
