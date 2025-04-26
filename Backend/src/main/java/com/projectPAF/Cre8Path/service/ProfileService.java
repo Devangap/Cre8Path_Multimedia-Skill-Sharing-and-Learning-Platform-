@@ -2,19 +2,25 @@ package com.projectPAF.Cre8Path.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.projectPAF.Cre8Path.Repository.ProfileRepository;
+import com.projectPAF.Cre8Path.repository.ProfileRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,8 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+
+    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads"; // Same as Post Upload
 
     @Transactional
     public Profile createProfile(
@@ -48,7 +56,29 @@ public class ProfileService {
         }
 
         List<String> skills = objectMapper.readValue(skillsJson, new TypeReference<>() {});
-        String imageUrl = (profilePicture != null) ? "/uploads/" + profilePicture.getOriginalFilename() : null;
+
+        String imageUrl = null;
+
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            // Ensure uploads directory exists
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            // Save with random UUID filename
+            String originalFilename = profilePicture.getOriginalFilename();
+            String fileExtension = originalFilename != null && originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                    : ".jpg"; // fallback to jpg
+
+            String newFilename = UUID.randomUUID().toString() + fileExtension;
+            Path filePath = Paths.get(UPLOAD_DIR, newFilename);
+            Files.write(filePath, profilePicture.getBytes());
+
+            // Set the image URL for database
+            imageUrl = "/uploads/" + newFilename;
+        }
 
         Profile profile = new Profile();
         profile.setUser(user);
@@ -68,6 +98,9 @@ public class ProfileService {
         System.out.println("After saving profile: " + savedProfile);
 
         return savedProfile;
+    }
+    public Optional<Profile> getProfileByUsername(String username) {
+        return profileRepository.findByUsername(username);
     }
 
 }

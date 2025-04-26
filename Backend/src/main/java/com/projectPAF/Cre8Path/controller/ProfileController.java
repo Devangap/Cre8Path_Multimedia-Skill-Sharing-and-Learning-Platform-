@@ -1,12 +1,15 @@
 package com.projectPAF.Cre8Path.controller;
 
 import com.projectPAF.Cre8Path.model.Profile;
+import com.projectPAF.Cre8Path.model.ProfileDTO;
 import com.projectPAF.Cre8Path.service.ProfileService;
 import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,15 +33,21 @@ public class ProfileController {
             @RequestParam("website") String website,
             @RequestParam("skills") String skillsJson,
             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
+            @AuthenticationPrincipal OAuth2User oauth2User,
             Principal principal
     ) {
-        if (principal == null || principal.getName() == null) {
+        String email = null;
+
+        if (oauth2User != null) {
+            email = oauth2User.getAttribute("email");
+        } else if (principal != null) {
+            email = principal.getName();
+        }
+
+        if (email == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
 
-        String email = principal.getName(); // ✅ Works for both OAuth2 and email/password
-
-        // 🔍 Confirm user exists (optional)
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -53,4 +62,26 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getProfileByUsername(@PathVariable String username) {
+        Optional<Profile> optionalProfile = profileService.getProfileByUsername(username);
+
+        if (optionalProfile.isPresent()) {
+            Profile profile = optionalProfile.get();
+            ProfileDTO profileDTO = new ProfileDTO();
+            profileDTO.setUsername(profile.getUsername());
+            profileDTO.setFullName(profile.getFullName());
+            profileDTO.setBio(profile.getBio());
+            profileDTO.setSkills(profile.getSkills());
+            profileDTO.setProfilePictureUrl(profile.getProfilePictureUrl());
+            profileDTO.setLocation(profile.getLocation());
+            profileDTO.setWebsite(profile.getWebsite());
+
+            return ResponseEntity.ok(profileDTO); // ✅ Send DTO not Entity
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
+        }
+    }
+
 }
