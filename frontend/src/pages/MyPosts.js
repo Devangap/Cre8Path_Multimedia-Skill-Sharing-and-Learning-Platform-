@@ -80,9 +80,9 @@ const MyPosts = ({ userEmail: initialUserEmail }) => {
         }
     }, [userEmail, navigate]);
 
-    const handlePostClick = (postId) => {
-        navigate(`/post/${postId}`);
-    };
+    // const handlePostClick = (postId) => {
+    //     navigate(`/post/${postId}`);
+    // };
 
     if (loading) {
         return <div className="text-center mt-10">Loading...</div>;
@@ -91,23 +91,26 @@ const MyPosts = ({ userEmail: initialUserEmail }) => {
     const handleDelete = async (postId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this post?");
         if (!confirmDelete) return;
-    
+      
         try {
-            const res = await fetch(`http://localhost:8080/api/v1/posts/${postId}/delete`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-    
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Failed to delete post.");
-    
-            alert("Post deleted successfully.");
-            navigate('/my-posts'); // ✅ This triggers the redirect
+          const res = await fetch(`http://localhost:8080/api/v1/posts/${postId}/delete`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+      
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to delete post.");
+      
+          alert("Post deleted successfully.");
+      
+          // 👉 Instead of navigating, remove the post from UI
+          setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+          
         } catch (err) {
-            alert("Error: " + err.message);
-        }
-    
-    };
+          alert("Error: " + err.message);
+        }
+      };
+      
     
 
     return (
