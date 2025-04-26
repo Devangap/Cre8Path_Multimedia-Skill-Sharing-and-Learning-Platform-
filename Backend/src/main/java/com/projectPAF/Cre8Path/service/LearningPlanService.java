@@ -28,14 +28,36 @@ public class LearningPlanService {
         return learningPlan.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+//    public ResponseEntity<LearningPlan> updateLearningPlan(Long id, LearningPlan updatedLearningPlan) {
+//        if (repository.existsById(id)) {
+//            updatedLearningPlan.setId(id);
+//            return ResponseEntity.ok(repository.save(updatedLearningPlan));
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+
     public ResponseEntity<LearningPlan> updateLearningPlan(Long id, LearningPlan updatedLearningPlan) {
-        if (repository.existsById(id)) {
-            updatedLearningPlan.setId(id);
-            return ResponseEntity.ok(repository.save(updatedLearningPlan));
+        Optional<LearningPlan> existingPlanOptional = repository.findById(id);
+
+        if (existingPlanOptional.isPresent()) {
+            LearningPlan existingPlan = existingPlanOptional.get();
+
+            // Update only the editable fields
+            existingPlan.setTopic(updatedLearningPlan.getTopic());
+            existingPlan.setResources(updatedLearningPlan.getResources());
+            existingPlan.setTimeline(updatedLearningPlan.getTimeline());
+            existingPlan.setStartDate(updatedLearningPlan.getStartDate());
+            existingPlan.setEndDate(updatedLearningPlan.getEndDate());
+            existingPlan.setStatus(updatedLearningPlan.getStatus());
+            // ⚡ DO NOT TOUCH 'user' or 'createdAt'
+
+            return ResponseEntity.ok(repository.save(existingPlan));
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     public ResponseEntity<Void> deleteLearningPlan(Long id) {
         if (repository.existsById(id)) {
