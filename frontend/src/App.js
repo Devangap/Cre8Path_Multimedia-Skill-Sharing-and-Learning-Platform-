@@ -12,7 +12,8 @@ import MyPosts from './pages/MyPosts';
 import EditPost from './pages/EditPost';
 import PostDetails from './pages/PostDetails';
 
-import ProfileForm from './pages/ProfileForm';
+import ProfileForm from './pages/Profile/ProfileForm';
+import ProfilePage from './pages/Profile/ProfilePage';
 
 
 
@@ -53,6 +54,8 @@ function App() {
 
   <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> 
   <Route path="/profile-form" element={<ProfileForm setUserEmail={setUserEmail} />} />
+  <Route path="/profile/:username" element={<ProfilePage />} />
+
 
 
 </Routes>

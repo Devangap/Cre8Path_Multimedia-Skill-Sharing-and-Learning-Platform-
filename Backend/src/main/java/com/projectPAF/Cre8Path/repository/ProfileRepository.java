@@ -1,4 +1,4 @@
-package com.projectPAF.Cre8Path.Repository;
+package com.projectPAF.Cre8Path.repository;
 
 import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.model.User;

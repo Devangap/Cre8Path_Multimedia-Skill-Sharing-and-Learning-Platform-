@@ -1,4 +1,4 @@
-package com.projectPAF.Cre8Path.Repository;
+package com.projectPAF.Cre8Path.repository;
 
 
 

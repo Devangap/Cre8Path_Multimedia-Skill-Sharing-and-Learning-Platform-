@@ -1,8 +1,8 @@
 package com.projectPAF.Cre8Path.controller;
 
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
-import com.projectPAF.Cre8Path.Repository.PostRepository;
-import com.projectPAF.Cre8Path.Repository.UserRepository;
+import com.projectPAF.Cre8Path.repository.PostRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.model.User;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.File;
