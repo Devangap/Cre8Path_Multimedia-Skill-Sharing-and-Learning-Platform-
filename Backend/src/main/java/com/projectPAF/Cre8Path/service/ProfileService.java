@@ -3,7 +3,7 @@ package com.projectPAF.Cre8Path.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projectPAF.Cre8Path.Repository.ProfileRepository;
-import com.projectPAF.Cre8Path.Repository.UserRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.model.User;
 import jakarta.transaction.Transactional;

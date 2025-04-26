@@ -2,7 +2,7 @@ package com.projectPAF.Cre8Path.controller;
 
 import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.service.ProfileService;
-import com.projectPAF.Cre8Path.Repository.UserRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
