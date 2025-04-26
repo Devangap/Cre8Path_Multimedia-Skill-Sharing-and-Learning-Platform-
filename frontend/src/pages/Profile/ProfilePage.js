@@ -1,10 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import PostUpload from "../../components/PostUpload";
+import { useNavigate } from "react-router-dom";
+import EditPostModal from "../EditPost";
 
 const ProfilePage = () => {
   const { username } = useParams();
   const [profile, setProfile] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false); // 🔥 For dropdown toggle
+  const navigate = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const[showPostModal, setShowPostModal] = useState(false); 
+  const [myPosts, setMyPosts] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false); // For edit modal
+  const [editingPostId, setEditingPost] = useState(null); // For the post being edited
+
+
+  const handleDelete = async (postId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+  
+    try {
+      const res = await fetch(`http://localhost:8080/api/v1/posts/${postId}/delete`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete post.");
+  
+      alert("Post deleted successfully.");
+  
+      // ✅ Remove deleted post from UI
+      setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+  
+ // For postss
+
+   // 🔥 For dropdown toggle
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -15,6 +51,7 @@ const ProfilePage = () => {
         if (!res.ok) throw new Error("Profile not found");
         const data = await res.json();
         setProfile(data);
+        console.log("Profile data:", data); // Debugging line
       } catch (err) {
         console.error(err.message);
       }
@@ -22,6 +59,31 @@ const ProfilePage = () => {
 
     fetchProfile();
   }, [username]);
+  const fetchMyPosts = async () => {
+    try {
+      const res = await fetch('http://localhost:8080/api/v1/posts/my-posts', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+  
+      const data = await res.json();
+      console.log('Fetched my posts:', data);
+  
+      if (res.ok) {
+        setMyPosts(data);
+      } else {
+        console.error('Failed to fetch my posts');
+      }
+    } catch (err) {
+      console.error('Error fetching my posts:', err.message);
+    }
+  };
+  useEffect(() => {
+    fetchMyPosts();
+  }, []);
+  
+  
 
   if (!profile) {
     return <div className="text-center mt-20 text-gray-500">Loading profile...</div>;
@@ -73,6 +135,8 @@ const ProfilePage = () => {
     <button
       onClick={() => {
         setShowDropdown(false);
+        setShowPostModal(true); // Open the post modal
+        // navigate("/upload"); // Navigate to Upload page
         // Navigate to Create Post page
       }}
       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -153,11 +217,118 @@ const ProfilePage = () => {
       </div>
 
       {/* Posts Placeholder */}
-      <div className="mt-24 text-center">
-        <h3 className="text-lg text-gray-600">No posts yet</h3>
-        <p className="text-sm text-gray-400">Start by creating your first post!</p>
+      <div className="mt-24">
+        {myPosts.length === 0 ? (
+          <div className="text-center text-gray-600">No posts yet. Start by creating one!</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {myPosts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
+                onClick={() => navigate(`/posts/${post.id}`)}
+              >
+                {post.imageUrl && (
+                  <img
+                    src={`http://localhost:8080${post.imageUrl}`}
+                    alt={post.title}
+                    className="w-full h-40 object-cover rounded mb-4"
+                  />
+                )}
+                <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
+                <p className="text-gray-600 text -sm">
+                  {post.description ? post.description?.substring(0, 80) + '...' : 'No description'}
+                </p>
+                <p className="text-sm text-gray-500">Category: {post.category}</p>
+                <p className="text-sm text-gray-500">Skill Level: {post.skillLevel}</p>
+                <p className="text-sm text-gray-500">
+                  Tags: {post.tags ? post.tags.join(', ') : 'None'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Created: {new Date(post.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {post.isPublic ? 'Public' : 'Private'}
+                </p>
+                {/* Buttons */}
+                <div className="flex gap-2 mt-auto">
+                  <button
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex-1"
+                    onClick={(e) => {e.stopPropagation();
+                      handleDelete(post.id);}}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingPost(post.id); // Set the post ID to be edited
+                      setShowEditModal(true); // Open the edit modal
+                      //navigate(`/posts/${post.id}/edit`);
+                    }}
+                  >
+                    Edit
+                  </button>
+                 </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {showPostModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 animate-fadeZoom">
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowPostModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none"
+            >
+              ×
+            </button>
+
+            {/* Correct passing of email (safe) */}
+            <PostUpload 
+              userEmail={profile?.email} 
+              setShowPostModal={setShowPostModal}
+              refreshPosts={fetchMyPosts}  // ✅ This is the missing part you need to add!
+            />
+
+          </div>
+        </div>
+      )}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <EditPostModal
+            postId={editingPostId}
+            onClose={() => setShowEditModal(false)}
+            refreshPosts={() => {
+              // Re-fetch posts after edit
+              const fetchMyPosts = async () => {
+                try {
+                  const res = await fetch('http://localhost:8080/api/v1/posts/my-posts', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                  });
+                  const data = await res.json();
+                  if (res.ok) {
+                    setMyPosts(data);
+                  }
+                } catch (err) {
+                  console.error('Error refreshing posts:', err.message);
+                }
+              };
+              fetchMyPosts();
+            }}
+          />
+        </div>
+      )}
+
     </div>
+    
   );
 };
 
