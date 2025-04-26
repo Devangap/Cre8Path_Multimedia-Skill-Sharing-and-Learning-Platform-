@@ -9,13 +9,13 @@ const LearningpEdit = () => {
   const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
-    axios.get(`/api/learningp/${id}`)
+    axios.get(`http://localhost:8080/api/learningp/${id}`)
       .then(response => setInitialData(response.data))
       .catch(error => console.error('Error fetching learning progress:', error));
   }, [id]);
 
   const handleUpdate = (data) => {
-    axios.put(`/api/learningp/${id}`, data)
+    axios.put(`http://localhost:8080/api/learningp/${id}`, data)
       .then(() => navigate('/learningp'))
       .catch(error => console.error('Error updating learning progress:', error));
   };

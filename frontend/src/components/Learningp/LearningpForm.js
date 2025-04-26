@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const LearningpForm = ({ initialData = {}, onSubmit }) => {
   const [formData, setFormData] = useState({
+    user_id: initialData.user_id || '',
     course_id: initialData.course_id || '',
     start_date: initialData.start_date || '',
     end_date: initialData.end_date || '',

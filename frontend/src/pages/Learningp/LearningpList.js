@@ -5,13 +5,13 @@ const LearningpList = () => {
   const [learningpList, setLearningpList] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/learningp')
+    axios.get('http://localhost:8080/api/learningp')
       .then(response => setLearningpList(response.data))
       .catch(error => console.error('Error fetching learning progress:', error));
   }, []);
 
   const handleDelete = (id) => {
-    axios.delete(`/api/learningp/${id}`)
+    axios.delete(`http://localhost:8080/api/learningp/${id}`)
       .then(() => setLearningpList(learningpList.filter(item => item.id !== id)))
       .catch(error => console.error('Error deleting learning progress:', error));
   };
@@ -32,7 +32,7 @@ const LearningpList = () => {
           </tr>
         </thead>
         <tbody>
-          {learningpList.map(item => (
+          {(Array.isArray(learningpList) ? learningpList : []).map(item => (
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>{item.user_id}</td>

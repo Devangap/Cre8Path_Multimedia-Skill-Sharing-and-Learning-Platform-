@@ -31,13 +31,13 @@ public class Learningp {
     @Column(name = "CourseId",nullable = true)
     private Long course_id;
 
-    @Column(name = "Start Date")
+    @Column(name = "StartDate")
     private Date start_date;
     
-    @Column(name = "End Date")
+    @Column(name = "EndDate")
     private Date end_date;
     
-    @Column(name = "Progress Status")
+    @Column(name = "ProgressStatus")
     private String status;
 
 }
