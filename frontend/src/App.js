@@ -7,6 +7,7 @@ import Questionnaire from './pages/Questionnaire';
 
 import PostUpload from './components/PostUpload';
 import PostLogin from './pages/PostLogin';
+import ProfileForm from './pages/ProfileForm';
 
 
 function App() {
@@ -38,7 +39,9 @@ function App() {
   <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
   <Route path="/questionnaire" element={<Questionnaire />} />
   <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
-  <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> {/* ✅ THIS */}
+  <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> 
+  <Route path="/profile-form" element={<ProfileForm setUserEmail={setUserEmail} />} />
+
 </Routes>
     </Router>
   );
