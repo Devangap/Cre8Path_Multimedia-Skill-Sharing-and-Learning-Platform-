@@ -1,6 +1,12 @@
 package com.projectPAF.Cre8Path.controller;
 
+
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
+
+import com.projectPAF.Cre8Path.Repository.PostRepository;
+import com.projectPAF.Cre8Path.Repository.UserRepository;
+
+
 import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.service.PostService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.projectPAF.Cre8Path.config;
 
-import com.projectPAF.Cre8Path.Repository.UserRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
