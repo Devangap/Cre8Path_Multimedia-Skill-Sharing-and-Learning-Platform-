@@ -32,7 +32,7 @@ public class LearningPlanController {
     // GET a single learning plan
     @GetMapping("/{id}")
     public ResponseEntity<LearningPlan> getLearningPlan(@PathVariable Long id) {
-        return ResponseEntity.ok(learningPlanService.getLearningPlan(id));
+        return learningPlanService.getLearningPlan(id);
     }
 
     // UPDATE a learning plan
