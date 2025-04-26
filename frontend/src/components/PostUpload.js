@@ -1,8 +1,7 @@
-// src/pages/PostUpload.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-const PostUpload = ({ userEmail }) => {
+const PostUpload = ({ userEmail, setShowPostModal,refreshPosts }) => {   // ✅ Accept both props
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Photography');
@@ -12,7 +11,6 @@ const PostUpload = ({ userEmail }) => {
     const [skillLevel, setSkillLevel] = useState('Beginner');
     const [isPublic, setIsPublic] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -24,49 +22,60 @@ const PostUpload = ({ userEmail }) => {
         e.preventDefault();
         setError(null);
 
-        if (!userEmail) {
-            setError('You must be logged in to create a post.');
-            return;
-        }
+        // if (!userEmail) {
+        //     setError('You must be logged in to create a post.');
+        //     return;
+        // }
 
-        const postData = {
-            title,
-            description,
-            category,
-            imageUrl: image ? image.name : '', // Temporary: Use file name
-            tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-            skillLevel,
-            isPublic
-        };
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        formData.append('image', image);
+        tags.split(',').map(tag => tag.trim()).filter(tag => tag).forEach(tag => {
+            formData.append('tags', tag);
+        });
+        formData.append('skillLevel', skillLevel);
+        formData.append('isPublic', isPublic.toString());
 
         try {
             const res = await fetch('http://localhost:8080/api/v1/posts/create', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData),
-                credentials: 'include'
+                body: formData,
+                credentials: 'include',
             });
 
             const data = await res.json();
             if (!res.ok) {
                 throw new Error(data.error || 'Failed to create post.');
             }
+          // 🔄 Refresh posts if function is provide d}
 
-            alert('Post created successfully!');
-            navigate('/');
+            alert('🎉 Post Created Successfully!');  // 🔥 Simple success notification
+            if (refreshPosts) {
+                refreshPosts(); } 
+              // ✅ Close the modal safely
+            setShowPostModal(false);
+           
+
         } catch (err) {
             setError(err.message);
         }
+        if (typeof setShowPostModal === 'function') {
+            setShowPostModal(false);
+          }
     };
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-6 text-center">Create a New Post</h2>
+
             {error && (
                 <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
                     {error}
                 </div>
             )}
+
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label className="block text-gray-700">Title</label>
@@ -78,6 +87,7 @@ const PostUpload = ({ userEmail }) => {
                         required
                     />
                 </div>
+
                 <div className="mb-4">
                     <label className="block text-gray-700">Description</label>
                     <textarea
@@ -87,6 +97,7 @@ const PostUpload = ({ userEmail }) => {
                         rows="4"
                     />
                 </div>
+
                 <div className="mb-4">
                     <label className="block text-gray-700">Category</label>
                     <select
@@ -100,6 +111,7 @@ const PostUpload = ({ userEmail }) => {
                         <option value="Writing">Writing</option>
                     </select>
                 </div>
+
                 <div className="mb-4">
                     <label className="block text-gray-700">Upload Image</label>
                     <input
@@ -107,11 +119,17 @@ const PostUpload = ({ userEmail }) => {
                         onChange={handleImageChange}
                         className="w-full p-2 border rounded"
                         accept="image/*"
+                        required
                     />
                     {imagePreview && (
-                        <img src={imagePreview} alt="Preview" className="mt-2 w-full h-40 object-cover rounded" />
+                        <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="mt-2 w-full h-40 object-cover rounded"
+                        />
                     )}
                 </div>
+
                 <div className="mb-4">
                     <label className="block text-gray-700">Tags (comma-separated)</label>
                     <input
@@ -121,6 +139,7 @@ const PostUpload = ({ userEmail }) => {
                         className="w-full p-2 border rounded"
                     />
                 </div>
+
                 <div className="mb-4">
                     <label className="block text-gray-700">Skill Level</label>
                     <select
@@ -133,6 +152,7 @@ const PostUpload = ({ userEmail }) => {
                         <option value="Advanced">Advanced</option>
                     </select>
                 </div>
+
                 <div className="mb-4">
                     <label className="flex items-center">
                         <input
@@ -144,6 +164,7 @@ const PostUpload = ({ userEmail }) => {
                         Make this post public
                     </label>
                 </div>
+
                 <button
                     type="submit"
                     className="w-full bg-violet-600 text-white p-2 rounded hover:bg-violet-700"
@@ -155,4 +176,4 @@ const PostUpload = ({ userEmail }) => {
     );
 };
 
-export default PostUpload;
+export default PostUpload;
