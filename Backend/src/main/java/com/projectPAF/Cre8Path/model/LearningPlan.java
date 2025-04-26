@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "learning_plans")
@@ -38,4 +39,7 @@ public class LearningPlan {
 
     @Column(name = "progress_status", length = 50)
     private String status;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }
