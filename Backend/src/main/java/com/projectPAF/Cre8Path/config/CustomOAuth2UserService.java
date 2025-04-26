@@ -23,17 +23,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // google or facebook
+        String provider = userRequest.getClientRegistration().getRegistrationId(); // google or facebook or github
 
         Object emailObj = oAuth2User.getAttribute("email");
         String email = (emailObj != null) ? emailObj.toString() : null;
 
         Object oauthIdObj = oAuth2User.getAttribute("sub"); // Google
         if (oauthIdObj == null) {
-            oauthIdObj = oAuth2User.getAttribute("id"); // Facebook
+            oauthIdObj = oAuth2User.getAttribute("id"); // Facebook, GitHub
         }
         String oauthId = (oauthIdObj != null) ? oauthIdObj.toString() : null;
 
+        // 🔥 Special handling for GitHub users
+        if ("github".equals(provider)) {
+            if (email == null && oauthId != null) {
+                email = "github_" + oauthId + "@noemail.cre8path";
+            }
+        }
+        // 🔥 Special handling for Facebook users
         if ("facebook".equals(provider)) {
             if (email == null && oauthId != null) {
                 email = "facebook_" + oauthId + "@noemail.cre8path";
@@ -50,16 +57,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User user = optionalUser.orElseGet(() -> {
             User newUser = new User();
-            newUser.setEmail(finalEmail);
+            newUser.setEmail(finalEmail); // 🚀 Will NEVER be null now
             newUser.setOauthId(finalOauthId);
             newUser.setFirstTimeLogin(true);
-            newUser.setPassword("OAUTH2_USER"); // <-- Dummy password to fix NULL error
+            newUser.setPassword("OAUTH2_USER"); // <-- Dummy password
             return userRepository.save(newUser);
         });
 
-
         return oAuth2User;
     }
+
 
 
 }
