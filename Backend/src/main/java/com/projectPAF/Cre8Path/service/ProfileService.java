@@ -105,4 +105,9 @@ public class ProfileService {
         return profileRepository.findByUsername(username);
     }
 
+    public Optional<Profile> getProfileByUser(User user) {
+        return profileRepository.findByUser(user);
+    }
+
+
 }
