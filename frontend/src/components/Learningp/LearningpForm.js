@@ -146,10 +146,20 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
                     onChange={handleChange}
                     className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   >
+
+case 'Completed':
+        return 'bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold';
+      case 'In Progress':
+        return 'bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold';
+      case 'Failed':
+        return 'bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold';
+      case 'Just Started':
+        return 'bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold';
                     <option value="">Select Status</option>
-                    <option value="enroll">Enroll</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="Just Started">Just Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Incomplete">Incomplete</option>
+                    <option value="Completed">Completed</option>
                   </select>
                 </div>
               </div>
@@ -160,7 +170,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           <button
             type="button"
             className="rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            onClick={() => console.log('Cancel')}
+            onClick={() => window.location.href = '/learningp'}
           >
             Cancel
           </button>
