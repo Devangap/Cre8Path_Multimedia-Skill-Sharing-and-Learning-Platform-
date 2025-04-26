@@ -110,4 +110,56 @@ public class ProfileService {
     }
 
 
+    @Transactional
+    public Profile updateProfile(User user, String username, String fullName, String bio, String location, String website, String skillsJson, MultipartFile profilePicture) {
+
+        Profile profile = profileRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("Profile does not exist."));
+
+        profile.setUsername(username);
+        profile.setFullName(fullName);
+        profile.setBio(bio);
+        profile.setLocation(location);
+        profile.setWebsite(website);
+        profile.setSkills(skillsJson);
+
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            try {
+                // Save new picture
+                File uploadDir = new File(UPLOAD_DIR);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();
+                }
+                String originalFilename = profilePicture.getOriginalFilename();
+                String fileExtension = (originalFilename != null && originalFilename.contains("."))
+                        ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                        : ".jpg";
+                String newFilename = UUID.randomUUID().toString() + fileExtension;
+                Path filePath = Paths.get(UPLOAD_DIR, newFilename);
+                Files.write(filePath, profilePicture.getBytes());
+
+                profile.setProfilePictureUrl("/uploads/" + newFilename);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload profile picture", e);
+            }
+        }
+
+        return profileRepository.save(profile);
+    }
+
+    @Transactional
+    public void deleteProfile(User user) {
+        Optional<Profile> optionalProfile = profileRepository.findByUser(user);
+
+        if (optionalProfile.isPresent()) {
+            profileRepository.delete(optionalProfile.get());
+        } else {
+            throw new IllegalStateException("Profile not found for user");
+        }
+    }
+
+
+
+
 }
