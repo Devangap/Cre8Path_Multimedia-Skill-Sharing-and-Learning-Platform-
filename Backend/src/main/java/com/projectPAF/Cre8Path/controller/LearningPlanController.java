@@ -138,12 +138,30 @@ public class LearningPlanController {
         return learningPlanService.updateLearningPlan(id, learningPlan);
     }
 
-    // Delete a Learning Plan
+//    // Delete a Learning Plan
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deleteLearningPlan(@PathVariable Long id) {
+//        learningPlanService.deleteLearningPlan(id);
+//        return ResponseEntity.noContent().build();
+//    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLearningPlan(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteLearningPlan(@PathVariable Long id) {
         learningPlanService.deleteLearningPlan(id);
-        return ResponseEntity.noContent().build();
+
+        // Simple console output
+        System.out.println("Learning plan with ID " + id + " deleted successfully.");
+
+        // Logger output
+        logger.info("Learning plan with ID {} deleted successfully.", id);
+
+        // Create JSON response
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Learning plan with ID " + id + " deleted successfully.");
+
+        return ResponseEntity.ok(response); // <-- Return 200 OK with JSON body
     }
+
 
     // Get All Learning Plans
     @GetMapping
