@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const PostUpload = ({ userEmail }) => {
+const EditPost = ({ userEmail }) => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Photography');
@@ -11,7 +14,33 @@ const PostUpload = ({ userEmail }) => {
     const [skillLevel, setSkillLevel] = useState('Beginner');
     const [isPublic, setIsPublic] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
+
+    const BASE_URL = 'http://localhost:8080';
+
+    useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                const res = await fetch(`${BASE_URL}/api/v1/posts/${id}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to load post.');
+
+                setTitle(data.title);
+                setDescription(data.description);
+                setCategory(data.category);
+                setSkillLevel(data.skillLevel);
+                setTags(data.tags ? data.tags.join(', ') : '');
+                setIsPublic(data.isPublic);
+                setImagePreview(`${BASE_URL}${data.imageUrl}`);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchPost();
+    }, [id]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -19,20 +48,15 @@ const PostUpload = ({ userEmail }) => {
         setImagePreview(file ? URL.createObjectURL(file) : null);
     };
 
-    const handleSubmit = async (e) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
         setError(null);
-
-        if (!userEmail) {
-            setError('You must be logged in to create a post.');
-            return;
-        }
 
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
         formData.append('category', category);
-        formData.append('image', image);
+        if (image) formData.append('image', image);
         tags.split(',').map(tag => tag.trim()).filter(tag => tag).forEach(tag => {
             formData.append('tags', tag);
         });
@@ -40,19 +64,17 @@ const PostUpload = ({ userEmail }) => {
         formData.append('isPublic', isPublic.toString());
 
         try {
-            const res = await fetch('http://localhost:8080/api/v1/posts/create', {
-                method: 'POST',
+            const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/update`, {
+                method: 'PUT',
                 body: formData,
                 credentials: 'include',
             });
 
             const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.error || 'Failed to create post.');
-            }
+            if (!res.ok) throw new Error(data.error || 'Failed to update post.');
 
-            alert('Post created successfully!');
-            navigate('/');
+            alert('Post updated successfully!');
+            navigate('/my-posts');
         } catch (err) {
             setError(err.message);
         }
@@ -60,13 +82,9 @@ const PostUpload = ({ userEmail }) => {
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-6 text-center">Create a New Post</h2>
-            {error && (
-                <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
-                    {error}
-                </div>
-            )}
-            <form onSubmit={handleSubmit}>
+            <h2 className="text-2xl font-bold mb-6 text-center">Edit Post</h2>
+            {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+            <form onSubmit={handleUpdate}>
                 <div className="mb-4">
                     <label className="block text-gray-700">Title</label>
                     <input
@@ -100,16 +118,19 @@ const PostUpload = ({ userEmail }) => {
                     </select>
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700">Upload Image</label>
+                    <label className="block text-gray-700">Update Image (optional)</label>
                     <input
                         type="file"
                         onChange={handleImageChange}
                         className="w-full p-2 border rounded"
                         accept="image/*"
-                        required
                     />
                     {imagePreview && (
-                        <img src={imagePreview} alt="Preview" className="mt-2 w-full h-40 object-cover rounded" />
+                        <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="mt-2 w-full h-40 object-cover rounded"
+                        />
                     )}
                 </div>
                 <div className="mb-4">
@@ -148,11 +169,11 @@ const PostUpload = ({ userEmail }) => {
                     type="submit"
                     className="w-full bg-violet-600 text-white p-2 rounded hover:bg-violet-700"
                 >
-                    Share Post
+                    Update Post
                 </button>
             </form>
         </div>
     );
 };
 
-export default PostUpload;
+export default EditPost;
