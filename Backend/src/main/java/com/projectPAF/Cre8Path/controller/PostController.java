@@ -1,7 +1,7 @@
 package com.projectPAF.Cre8Path.controller;
 
-import com.projectPAF.Cre8Path.Repository.PostRepository;
-import com.projectPAF.Cre8Path.Repository.UserRepository;
+import com.projectPAF.Cre8Path.repository.PostRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.model.User;
 import org.slf4j.Logger;
