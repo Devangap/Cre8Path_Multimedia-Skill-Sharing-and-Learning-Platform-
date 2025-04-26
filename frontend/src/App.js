@@ -8,12 +8,18 @@ import Questionnaire from './pages/Questionnaire';
 import PostUpload from './components/PostUpload';
 import PostLogin from './pages/PostLogin';
 
+
 import MyPosts from './pages/MyPosts';
 import EditPost from './pages/EditPost';
 import PostDetails from './pages/PostDetails';
 
 import ProfileForm from './pages/ProfileForm';
 
+
+
+import LearningpList from './pages/Learningp/LearningpList';
+import LearningpCreate from './pages/Learningp/LearningpCreate';
+import LearningpEdit from './pages/Learningp/LearningpEdit';
 
 
 function App() {
@@ -47,6 +53,7 @@ function App() {
   <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
 
   <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> {/* ✅ THIS */}
+
   <Route path="/my-posts" element={<MyPosts userEmail={userIdentifier} />} />
   <Route path="/posts/:id/edit" element={<EditPost userEmail={userEmail} />} />
   <Route path="/posts/:id/" element={<PostDetails />} />
@@ -54,6 +61,11 @@ function App() {
   <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> 
   <Route path="/profile-form" element={<ProfileForm setUserEmail={setUserEmail} />} />
 
+
+
+  <Route path="/learningp" element={<LearningpList />} />
+  <Route path="/learningp/create" element={<LearningpCreate />} />
+  <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
 
 </Routes>
     </Router>
