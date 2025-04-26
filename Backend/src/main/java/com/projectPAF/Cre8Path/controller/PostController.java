@@ -1,7 +1,10 @@
 package com.projectPAF.Cre8Path.controller;
 
-import com.projectPAF.Cre8Path.repository.PostRepository;
-import com.projectPAF.Cre8Path.repository.UserRepository;
+
+import com.projectPAF.Cre8Path.model.PostCreateDTO;
+import com.projectPAF.Cre8Path.Repository.PostRepository;
+import com.projectPAF.Cre8Path.Repository.UserRepository;
+
 import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.model.User;
 import org.slf4j.Logger;
@@ -12,17 +15,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/posts")
 public class PostController {
 
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+    private static final String UPLOAD_DIR = "uploads/";
 
     @Autowired
     private PostRepository postRepository;
@@ -30,24 +43,26 @@ public class PostController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public ResponseEntity<Map<String, String>> createPost(
-            @RequestBody Map<String, Object> postData,
-            @AuthenticationPrincipal OAuth2User principal
+            @ModelAttribute PostCreateDTO postDTO,
+            @AuthenticationPrincipal OAuth2User oauth2User,
+            Principal principal
     ) {
-        logger.info("Received request to create post: {}", postData);
+        logger.info("Received request to create post with title: {}", postDTO.getTitle());
         Map<String, String> response = new HashMap<>();
 
-        if (principal == null) {
-            logger.warn("Unauthorized attempt to create post. Principal is null.");
-            response.put("error", "User not authenticated.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        // Identify user email (whether normal login or Google OAuth2)
+        String email = null;
+        if (oauth2User != null) {
+            email = oauth2User.getAttribute("email");
+        } else if (principal != null) {
+            email = principal.getName();
         }
 
-        String email = principal.getAttribute("email");
         if (email == null) {
-            logger.warn("Email not found in OAuth2 principal.");
-            response.put("error", "Unable to retrieve user email from authentication.");
+            logger.warn("Unauthorized attempt to create post. No email found.");
+            response.put("error", "User not authenticated.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
@@ -58,7 +73,6 @@ public class PostController {
             logger.info("User {} not found, creating new user.", email);
             user = new User();
             user.setEmail(email);
-            // No password set for OAuth2 users
             try {
                 userRepository.save(user);
             } catch (Exception e) {
@@ -68,41 +82,59 @@ public class PostController {
             }
         }
 
-        String title = (String) postData.get("title");
-        String description = (String) postData.get("description");
-        String category = (String) postData.get("category");
-        String imageUrl = (String) postData.get("imageUrl");
-        List<String> tags;
-        try {
-            tags = (List<String>) postData.get("tags");
-        } catch (ClassCastException e) {
-            logger.warn("Invalid tags format: {}", postData.get("tags"));
-            response.put("error", "Tags must be a list of strings.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        String skillLevel = (String) postData.get("skillLevel");
-        Boolean isPublic = (Boolean) postData.get("isPublic");
-
-        if (title == null || title.trim().isEmpty()) {
+        // Validate required fields
+        if (postDTO.getTitle() == null || postDTO.getTitle().trim().isEmpty()) {
             logger.warn("Invalid post data: title is missing.");
             response.put("error", "Title is required.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            logger.warn("Invalid post data: imageUrl is missing.");
-            response.put("error", "Image URL is required.");
+        if (postDTO.getImage() == null || postDTO.getImage().isEmpty()) {
+            logger.warn("Invalid post data: image is missing.");
+            response.put("error", "Image is required.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
+        // Validate image type
+        if (!postDTO.getImage().getContentType().startsWith("image/")) {
+            logger.warn("Invalid post data: uploaded file is not an image.");
+            response.put("error", "Uploaded file must be an image.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // Save the image file
+        String imageUrl;
+        try {
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String originalFilename = postDTO.getImage().getOriginalFilename();
+            String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+            String newFilename = UUID.randomUUID().toString() + fileExtension;
+            Path filePath = Paths.get(UPLOAD_DIR, newFilename);
+            Files.write(filePath, postDTO.getImage().getBytes());
+
+            imageUrl = "/uploads/" + newFilename;
+        } catch (IOException e) {
+            logger.error("Failed to save image: {}", e.getMessage(), e);
+            response.put("error", "Failed to upload image: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        // Parse isPublic
+        Boolean isPublic = postDTO.getIsPublic() != null ? Boolean.parseBoolean(postDTO.getIsPublic()) : true;
+
+        // Create the post
         Post post = new Post();
-        post.setTitle(title);
-        post.setDescription(description);
-        post.setCategory(category != null ? category : "Uncategorized");
+        post.setTitle(postDTO.getTitle());
+        post.setDescription(postDTO.getDescription());
+        post.setCategory(postDTO.getCategory() != null ? postDTO.getCategory() : "Uncategorized");
         post.setImageUrl(imageUrl);
-        post.setTags(tags);
-        post.setSkillLevel(skillLevel != null ? skillLevel : "Beginner");
-        post.setPublic(isPublic != null ? isPublic : true);
+        post.setTags(postDTO.getTags());
+        post.setSkillLevel(postDTO.getSkillLevel() != null ? postDTO.getSkillLevel() : "Beginner");
+        post.setPublic(isPublic);
         post.setCreatedAt(LocalDateTime.now());
         post.setUser(user);
 
@@ -118,22 +150,41 @@ public class PostController {
         response.put("message", "Post created successfully.");
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/my-posts")
-    public ResponseEntity<?> getMyPosts(@AuthenticationPrincipal OAuth2User principal) {
+    public ResponseEntity<?> getMyPosts(
+            @AuthenticationPrincipal OAuth2User oauth2User,
+            Principal principal
+    ) {
         logger.info("Received request to fetch posts for user.");
-        if (principal == null) {
+        if (principal == null && oauth2User == null) {
             logger.warn("Unauthorized attempt to fetch posts.");
             Map<String, String> response = new HashMap<>();
             response.put("error", "User not authenticated.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        String email = principal.getAttribute("email");
+        String email = null;
+        if (oauth2User != null) {
+            // Google OAuth2 login
+            email = oauth2User.getAttribute("email");
+        } else if (principal != null) {
+            // Normal email login (e.g., session-based)
+            email = principal.getName();
+        }
+
+        if (email == null) {
+            logger.warn("Unable to retrieve user email from authentication.");
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Unable to retrieve user email.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
         logger.info("Fetching posts for user: {}", email);
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
-            logger.warn("User {} not found.", email);
+            logger.warn("User {}/ul> not found.", email);
             Map<String, String> response = new HashMap<>();
             response.put("error", "User not found.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -179,4 +230,129 @@ public class PostController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Map<String, String>> deletePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal OAuth2User oauth2User,
+            Principal principal
+    ) {
+        Map<String, String> response = new HashMap<>();
+        String email = null;
+
+        // Retrieve user email from either login method
+        if (oauth2User != null) {
+            email = oauth2User.getAttribute("email");
+        } else if (principal != null) {
+            email = principal.getName();
+        }
+
+        if (email == null) {
+            response.put("error", "User not authenticated.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        // Find post by ID
+        Post post = postRepository.findById(id).orElse(null);
+        if (post == null) {
+            response.put("error", "Post not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        // Check ownership
+        if (!post.getUser().getEmail().equals(email)) {
+            response.put("error", "You are not authorized to delete this post.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        try {
+            // Optionally delete image file
+            String imagePath = "uploads/" + new File(post.getImageUrl()).getName();
+            File imageFile = new File(imagePath);
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
+
+            postRepository.delete(post);
+            response.put("message", "Post deleted successfully.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", "Failed to delete post: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);}
+    }
+
+    @PutMapping(value = "/{id}/update", consumes = {"multipart/form-data"})
+    public ResponseEntity<Map<String, String>> updatePost(
+            @PathVariable Long id,
+            @ModelAttribute PostCreateDTO postDTO,
+            @AuthenticationPrincipal OAuth2User oauth2User,
+            Principal principal
+    ) {
+        Map<String, String> response = new HashMap<>();
+        String email = null;
+
+        if (oauth2User != null) {
+            email = oauth2User.getAttribute("email");
+        } else if (principal != null) {
+            email = principal.getName();
+        }
+
+        if (email == null) {
+            response.put("error", "User not authenticated.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        Post existingPost = postRepository.findById(id).orElse(null);
+        if (existingPost == null) {
+            response.put("error", "Post not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        if (!existingPost.getUser().getEmail().equals(email)) {
+            response.put("error", "You are not authorized to update this post.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        // Update fields
+        if (postDTO.getTitle() != null) existingPost.setTitle(postDTO.getTitle());
+        if (postDTO.getDescription() != null) existingPost.setDescription(postDTO.getDescription());
+        if (postDTO.getCategory() != null) existingPost.setCategory(postDTO.getCategory());
+        if (postDTO.getSkillLevel() != null) existingPost.setSkillLevel(postDTO.getSkillLevel());
+        if (postDTO.getTags() != null) existingPost.setTags(postDTO.getTags());
+        if (postDTO.getIsPublic() != null) {
+            existingPost.setPublic(Boolean.parseBoolean(postDTO.getIsPublic()));
+        }
+
+        // Handle image update if a new image is uploaded
+        if (postDTO.getImage() != null && !postDTO.getImage().isEmpty()) {
+            try {
+                File uploadDir = new File(UPLOAD_DIR);
+                if (!uploadDir.exists()) uploadDir.mkdirs();
+
+                String originalFilename = postDTO.getImage().getOriginalFilename();
+                String fileExtension = originalFilename != null
+                        ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                        : ".jpg";
+                String newFilename = UUID.randomUUID().toString() + fileExtension;
+                Path filePath = Paths.get(UPLOAD_DIR, newFilename);
+                Files.write(filePath, postDTO.getImage().getBytes());
+
+                // Optionally delete old image
+                String oldImagePath = "uploads/" + new File(existingPost.getImageUrl()).getName();
+                File oldImageFile = new File(oldImagePath);
+                if (oldImageFile.exists()) oldImageFile.delete();
+
+                existingPost.setImageUrl("/uploads/" + newFilename);
+            } catch (IOException e) {
+                response.put("error", "Failed to upload new image: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+        }
+
+        postRepository.save(existingPost);
+        response.put("message", "Post updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+
 }
