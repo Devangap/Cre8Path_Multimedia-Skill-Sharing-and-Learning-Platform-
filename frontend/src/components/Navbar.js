@@ -1,5 +1,5 @@
 import React from 'react';
-
+ 
 const Sidebar = ({ userEmail }) => {
   return (
     <div className="h-screen w-64 bg-white shadow-lg flex flex-col justify-between fixed">
@@ -8,7 +8,7 @@ const Sidebar = ({ userEmail }) => {
         <div className="text-2xl font-bold mb-8" style={{ color: '#A367B1' }}>
           Cre8Path
         </div>
-
+ 
         {/* Links */}
         <nav className="flex flex-col space-y-4">
           <a href="/" className="text-gray-700 hover:text-blue-600">Home</a>
@@ -16,7 +16,7 @@ const Sidebar = ({ userEmail }) => {
           <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a>
         </nav>
       </div>
-
+ 
       {/* Bottom Section */}
       <div className="p-6 space-y-4">
         {userEmail && (
@@ -24,7 +24,7 @@ const Sidebar = ({ userEmail }) => {
             Signed in as: <br /> {userEmail}
           </div>
         )}
-
+ 
         <button
           onClick={() => {
             fetch("http://localhost:8080/logout", {
@@ -43,5 +43,7 @@ const Sidebar = ({ userEmail }) => {
     </div>
   );
 };
-
+ 
 export default Sidebar;
+ 
+ 
