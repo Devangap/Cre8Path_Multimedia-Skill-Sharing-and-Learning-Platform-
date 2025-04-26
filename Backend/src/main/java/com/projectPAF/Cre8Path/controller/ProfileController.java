@@ -83,5 +83,50 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
         }
     }
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal OAuth2User oauth2User, Principal principal) {
+        System.out.println("🔍 /me endpoint called"); // <-- ADD THIS
+        String email = null;
+
+        if (oauth2User != null) {
+            email = oauth2User.getAttribute("email");
+            System.out.println("OAuth2 Email: " + email); // <-- ADD THIS
+        } else if (principal != null) {
+            email = principal.getName();
+            System.out.println("Principal Email: " + email); // <-- ADD THIS
+        }
+
+        if (email == null) {
+            System.out.println("❌ No email found!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            System.out.println("❌ User not found for email: " + email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        Optional<Profile> optionalProfile = profileService.getProfileByUser(optionalUser.get());
+        if (optionalProfile.isEmpty()) {
+            System.out.println("❌ Profile not found for user: " + optionalUser.get().getEmail());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
+        }
+
+        Profile profile = optionalProfile.get();
+        System.out.println("✅ Profile found for: " + profile.getUsername());
+
+        ProfileDTO profileDTO = new ProfileDTO();
+        profileDTO.setUsername(profile.getUsername());
+        profileDTO.setFullName(profile.getFullName());
+        profileDTO.setBio(profile.getBio());
+        profileDTO.setSkills(profile.getSkills());
+        profileDTO.setProfilePictureUrl(profile.getProfilePictureUrl());
+        profileDTO.setLocation(profile.getLocation());
+        profileDTO.setWebsite(profile.getWebsite());
+
+        return ResponseEntity.ok(profileDTO);
+    }
+
 
 }
