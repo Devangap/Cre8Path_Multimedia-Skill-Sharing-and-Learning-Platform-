@@ -33,21 +33,25 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
     try {
       const res = await fetch('http://localhost:8080/api/profile/delete', {
         method: 'DELETE',
-        credentials: 'include',
+        headers: { "Content-Type": "application/json" }, 
+        credentials: 'include',  
       });
   
+      const data = await res.json();
+  
       if (res.ok) {
-        alert('✅ Profile deleted successfully!');
-        window.location.href = "/"; // 👈 Redirect to home or login page
+        alert(data.message || "Profile deleted successfully!");
+        window.location.href = "/";
       } else {
-        const errorMsg = await res.text();
-        alert('❌ Error: ' + errorMsg);
+        alert(data.error || "Something went wrong");
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Something went wrong while deleting your profile.');
+      alert('❌ Failed to delete your profile.');
     }
   };
+  
+  
   
 
   const handleInputChange = (e) => {
@@ -86,11 +90,12 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
     }
   
     try {
-      const res = await fetch("http://localhost:8080/api/profile/update", { // ✨ FIXED: capture into res
+      const res = await fetch("http://localhost:8080/api/profile/update", {
         method: "POST",
         credentials: "include",
         body: formDataToSend,
       });
+      
   
       if (res.ok) {
         alert("Profile updated successfully!");

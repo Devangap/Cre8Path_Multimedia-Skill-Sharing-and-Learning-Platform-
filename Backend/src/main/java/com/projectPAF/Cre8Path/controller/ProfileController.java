@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -154,27 +156,37 @@ public class ProfileController {
         return ResponseEntity.ok("Profile updated successfully!");
     }
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteMyProfile(
+    public ResponseEntity<Map<String, String>> deleteProfile(
             @AuthenticationPrincipal OAuth2User oauth2User,
-            Principal principal
+            Principal principal,
+            @RequestBody(required = false) String dummyBody
+
     ) {
+        Map<String, String> response = new HashMap<>();
+
         String email = (oauth2User != null) ? oauth2User.getAttribute("email") : principal.getName();
 
         if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            response.put("error", "User not authenticated");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            response.put("error", "User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         try {
             profileService.deleteProfile(optionalUser.get());
-            return ResponseEntity.ok("✅ Profile deleted successfully!");
+            response.put("message", "✅ Profile deleted successfully!");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            e.printStackTrace();
+            response.put("error", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
     }
 
 
