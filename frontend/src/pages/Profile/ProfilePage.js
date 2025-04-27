@@ -34,7 +34,7 @@ const ProfilePage = () => {
   
       alert("Post deleted successfully.");
   
-      // ✅ Remove deleted post from UI
+     
       setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
       
     } catch (err) {
@@ -338,7 +338,10 @@ const ProfilePage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <EditPostModal
             postId={editingPostId}
-            onClose={() => setShowEditModal(false)}
+            onClose={() => {
+                setShowEditModal(false);
+                fetchMyPosts();
+              }}
             refreshProfile={() => {
                 const fetchProfile = async () => {
                   try {

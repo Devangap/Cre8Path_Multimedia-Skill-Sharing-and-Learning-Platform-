@@ -55,6 +55,7 @@ const navigate = useNavigate();
       if (res.ok) {
         alert("Profile created successfully!");
         navigate(`/profile/${formData.username}`);
+        navigate(0);  
 
       } else {
         const errorMsg = await res.text();
