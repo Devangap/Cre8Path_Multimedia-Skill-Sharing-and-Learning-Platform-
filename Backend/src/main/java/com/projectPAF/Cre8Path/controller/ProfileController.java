@@ -129,7 +129,7 @@ public class ProfileController {
 
         return ResponseEntity.ok(profileDTO);
     }
-    @PostMapping("/update")
+    @PutMapping(value = "/update", consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateProfile(
             @RequestParam("username") String username,
             @RequestParam("fullName") String fullName,
@@ -142,6 +142,7 @@ public class ProfileController {
             Principal principal
     ) {
         String email = (oauth2User != null) ? oauth2User.getAttribute("email") : principal.getName();
+
         if (email == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
@@ -151,10 +152,31 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
-        Profile profile = profileService.updateProfile(optionalUser.get(), username, fullName, bio, location, website, skillsJson, profilePicture);
+        try {
+            Profile updatedProfile = profileService.updateProfile(
+                    optionalUser.get(),
+                    username,
+                    fullName,
+                    bio,
+                    location,
+                    website,
+                    skillsJson,
+                    profilePicture
+            );
 
-        return ResponseEntity.ok("Profile updated successfully!");
+            // You can return the updated profile if you want, or just a success message
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "✅ Profile updated successfully!");
+            response.put("newUsername", updatedProfile.getUsername()); // 👈 Optional: Return new username if changed
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating profile: " + e.getMessage());
+        }
     }
+
     @DeleteMapping("/delete")
     public ResponseEntity<Map<String, String>> deleteProfile(
             @AuthenticationPrincipal OAuth2User oauth2User,

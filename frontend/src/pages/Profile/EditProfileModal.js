@@ -91,24 +91,25 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
   
     try {
       const res = await fetch("http://localhost:8080/api/profile/update", {
-        method: "POST",
+        method: "PUT", 
         credentials: "include",
         body: formDataToSend,
       });
-      
   
       if (res.ok) {
-        alert("Profile updated successfully!");
-        window.location.reload();
+        alert("✅ Profile updated successfully!");
+        onClose(); 
+        refreshProfile(); 
       } else {
         const errorMsg = await res.text();
-        alert("Error: " + errorMsg);
+        alert("❌ Error: " + errorMsg);
       }
     } catch (err) {
       console.error(err);
       alert("Something went wrong while updating your profile.");
     }
   };
+  
   
   
   return (
@@ -215,7 +216,7 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
           <div className="col-span-2 mt-4">
   <button
     type="button"
-    onClick={handleDeleteProfile}  // 🔥 We'll define this below
+    onClick={handleDeleteProfile}  
     className="w-full bg-red-500 text-white py-3 rounded hover:bg-red-600 transition"
   >
     Delete Profile
