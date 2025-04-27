@@ -74,7 +74,10 @@ function App() {
   <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
 
   {/* LearningPlans CREATE */}
-  <Route path="/learning-plans/create" element={<LearningPlanCreate />} />
+  {/* <Route path="/learning-plans/create" element={<LearningPlanCreate />} /> */}
+  <Route path="/profile/:username" element={<ProfilePage />} />
+  <Route path="/learning-plans/create" element={<ProfilePage />} />
+
 
 </Routes>
     </Router>

@@ -68,23 +68,28 @@ const LearningPlanCreate = () => {
             name="timeline"
             value={formData.timeline}
             onChange={handleChange}
-            placeholder="Timeline (e.g., 3 months)"
+            placeholder="Timeline (eg: 3 months)"
             className="w-full p-2 border rounded"
           />
-          <input
-            type="date"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="date"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-500 mb-1">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-500 mb-1">End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"/>
+          </div>
           <input
             name="status"
             value={formData.status}
