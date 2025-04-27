@@ -1,10 +1,12 @@
 package com.projectPAF.Cre8Path.controller;
 
 
+
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
 
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
+
 
 
 import com.projectPAF.Cre8Path.model.Post;
@@ -20,6 +22,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:3000",allowCredentials = "true")
 @RestController
 @RequestMapping("api/v1/posts")
 @RequiredArgsConstructor

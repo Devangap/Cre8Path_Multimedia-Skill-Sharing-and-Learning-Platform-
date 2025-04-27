@@ -105,4 +105,62 @@ public class ProfileService {
         return profileRepository.findByUsername(username);
     }
 
+    public Optional<Profile> getProfileByUser(User user) {
+        return profileRepository.findByUser(user);
+    }
+
+
+    @Transactional
+    public Profile updateProfile(User user, String username, String fullName, String bio, String location, String website, String skillsJson, MultipartFile profilePicture) {
+
+        Profile profile = profileRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("Profile does not exist."));
+
+        profile.setUsername(username);
+        profile.setFullName(fullName);
+        profile.setBio(bio);
+        profile.setLocation(location);
+        profile.setWebsite(website);
+        profile.setSkills(skillsJson);
+
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            try {
+                // Save new picture
+                File uploadDir = new File(UPLOAD_DIR);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();
+                }
+                String originalFilename = profilePicture.getOriginalFilename();
+                String fileExtension = (originalFilename != null && originalFilename.contains("."))
+                        ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                        : ".jpg";
+                String newFilename = UUID.randomUUID().toString() + fileExtension;
+                Path filePath = Paths.get(UPLOAD_DIR, newFilename);
+                Files.write(filePath, profilePicture.getBytes());
+
+                profile.setProfilePictureUrl("/uploads/" + newFilename);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload profile picture", e);
+            }
+        }
+
+        return profileRepository.save(profile);
+    }
+
+    @Transactional
+    public void deleteProfile(User user) {
+        Optional<Profile> profileOpt = profileRepository.findByUser(user);
+
+        if (profileOpt.isEmpty()) {
+            throw new IllegalStateException("Profile does not exist for user: " + user.getEmail());
+        }
+
+        profileRepository.delete(profileOpt.get());
+    }
+
+
+
+
+
 }
