@@ -23,6 +23,10 @@ import LearningpCreate from './pages/Learningp/LearningpCreate';
 import LearningpEdit from './pages/Learningp/LearningpEdit';
 
 
+// LearningPlan
+import LearningPlanCreate from "./pages/LearningPlans/LearningPlanCreate";
+
+
 function App() {
   const [userIdentifier, setUserIdentifier] = useState(localStorage.getItem('userIdentifier') || '');
   const [userEmail, setUserEmail] = useState("");
@@ -65,10 +69,12 @@ function App() {
 
 
 
-
   <Route path="/learningp" element={<LearningpList />} />
   <Route path="/learningp/create" element={<LearningpCreate />} />
   <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
+
+  {/* LearningPlans CREATE */}
+  <Route path="/learning-plans/create" element={<LearningPlanCreate />} />
 
 </Routes>
     </Router>
