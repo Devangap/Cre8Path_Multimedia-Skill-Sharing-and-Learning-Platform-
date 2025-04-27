@@ -1,6 +1,7 @@
 package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.LearningPlan;
+import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.LearningPlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -67,4 +68,9 @@ public class LearningPlanService {
             return ResponseEntity.notFound().build();
         }
     }
+
+    public List<LearningPlan> getLearningPlansByUser(User user) {
+        return repository.findByUser(user);
+    }
+
 }

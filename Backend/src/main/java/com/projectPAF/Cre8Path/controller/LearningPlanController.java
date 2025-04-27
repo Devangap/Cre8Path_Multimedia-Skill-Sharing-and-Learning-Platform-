@@ -169,6 +169,33 @@ public class LearningPlanController {
         return ResponseEntity.ok(learningPlanService.getAllLearningPlans());
     }
 
-    
+    // Get only the current logged-in user's learning plans
+    @GetMapping("/my-plans")
+    public ResponseEntity<?> getMyLearningPlans(@AuthenticationPrincipal Object principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String email = null;
+
+        if (principal instanceof OAuth2User oauthUser) {
+            email = oauthUser.getAttribute("email");
+        } else if (principal instanceof org.springframework.security.core.userdetails.User user) {
+            email = user.getUsername();
+        }
+
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not found");
+        }
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        // Fetch only this user's plans
+        List<LearningPlan> myPlans = learningPlanService.getLearningPlansByUser(user);
+        return ResponseEntity.ok(myPlans);
+    }
 
 }
