@@ -91,15 +91,31 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
   
     try {
       const res = await fetch("http://localhost:8080/api/profile/update", {
-        method: "PUT", 
+        method: "PUT",
         credentials: "include",
         body: formDataToSend,
       });
   
       if (res.ok) {
         alert("✅ Profile updated successfully!");
-        onClose(); 
-        refreshProfile(); 
+
+        const refreshedProfileRes = await fetch("http://localhost:8080/api/profile/me", {
+          credentials: "include",
+        });
+  
+        if (refreshedProfileRes.ok) {
+          const refreshedProfile = await refreshedProfileRes.json();
+
+          if (refreshedProfile.username !== initialData.username) {
+            window.location.href = `/profile/${refreshedProfile.username}`;
+          } else {
+            onClose();
+            refreshProfile();
+          }
+        } else {
+          onClose();
+          refreshProfile();
+        }
       } else {
         const errorMsg = await res.text();
         alert("❌ Error: " + errorMsg);
