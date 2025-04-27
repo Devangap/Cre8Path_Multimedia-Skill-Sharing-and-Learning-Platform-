@@ -17,11 +17,41 @@ const navigate = useNavigate();
     location: "",
     website: ""
   });
-
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "username") {
+      setUsernameError(""); // Reset previous error
+      setCheckingUsername(true);
+  
+      // Delay a little to avoid too many calls
+      setTimeout(async () => {
+        try {
+          const res = await fetch(`http://localhost:8080/api/profile/${value}`, {
+            method: "GET",
+            credentials: "include",
+          });
+  
+          if (res.ok) {
+            setUsernameError("❌ Username is already taken!");
+          } else {
+            setUsernameError(""); // Username available
+          }
+        } catch (err) {
+          console.error(err.message);
+          setUsernameError("Error checking username");
+        } finally {
+          setCheckingUsername(false);
+        }
+      }, 500); // 0.5 second delay
+    }
   };
+  
+  const [usernameError, setUsernameError] = useState("");
+    const [checkingUsername, setCheckingUsername] = useState(false); // Optional: show checking spinner
+
+  
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -31,6 +61,7 @@ const navigate = useNavigate();
       alert("Only PNG and JPG files are allowed.");
     }
   };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -85,10 +116,22 @@ const navigate = useNavigate();
 
     {/* Username */}
     <div>
-      <label className="block text-sm text-gray-600 mb-1">Username</label>
-      <input name="username" required value={formData.username} onChange={handleInputChange}
-        className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-violet-400" />
-    </div>
+  <label className="block text-sm text-gray-600 mb-1">Username</label>
+  <input
+    name="username"
+    required
+    value={formData.username}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-violet-400"
+  />
+  {checkingUsername && (
+    <p className="text-sm text-blue-500 mt-1">Checking username...</p>
+  )}
+  {usernameError && (
+    <p className="text-sm text-red-500 mt-1">{usernameError}</p>
+  )}
+</div>
+
 
     {/* Full Name */}
     <div>
