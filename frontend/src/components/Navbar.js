@@ -5,24 +5,25 @@ const Sidebar = ({ userEmail }) => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
+  const fetchUserData = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/profile/me", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch user profile.");
+      const data = await res.json();
+      setUserData(data);
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/api/profile/me", {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Failed to fetch user profile.");
-        const data = await res.json();
-        setUserData(data);
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
-  
-    if (userEmail) { // ✅ Only fetch if userEmail exists
+    if (userEmail) {
       fetchUserData();
     }
-  }, [userEmail]); // 🛠 Now useEffect runs whenever userEmail changes
+  }, [userEmail]); 
+  
   
   
   console.log(userData)
@@ -51,6 +52,14 @@ const Sidebar = ({ userEmail }) => {
   <a href={`/profile/${userData.username}`} className="text-gray-700 hover:text-blue-600">
     Profile
   </a>
+)}
+{userEmail && !userData && (
+  <button
+    onClick={() => navigate("/profile-form")}
+    className="text-gray-700 hover:text-green-600 text-left"
+  >
+    Create Profile
+  </button>
 )}
 
 

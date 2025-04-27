@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import PostUpload from "../../components/PostUpload";
 import { useNavigate } from "react-router-dom";
 import EditPostModal from "../EditPost";
+import EditProfileModal from "./EditProfileModal"; 
+
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -13,6 +15,10 @@ const ProfilePage = () => {
   const [myPosts, setMyPosts] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false); // For edit modal
   const [editingPostId, setEditingPost] = useState(null); // For the post being edited
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+
+
+
 
 
   const handleDelete = async (postId) => {
@@ -30,7 +36,7 @@ const ProfilePage = () => {
   
       alert("Post deleted successfully.");
   
-      // ✅ Remove deleted post from UI
+     
       setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
       
     } catch (err) {
@@ -118,9 +124,14 @@ const ProfilePage = () => {
           <div className="flex items-center gap-6">
             <h2 className="text-3xl font-bold">{profile.username}</h2>
             <div className="relative flex gap-4">
-              <button className="px-6 py-2 rounded text-white hover:opacity-90 transition" style={{ backgroundColor: "#A367B1" }}>
-                Edit Profile
-              </button>
+            <button
+  onClick={() => setShowEditProfileModal(true)}
+  className="px-6 py-2 rounded text-white hover:opacity-90 transition"
+  style={{ backgroundColor: "#A367B1" }}
+>
+  Edit Profile
+</button>
+
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
@@ -299,30 +310,59 @@ const ProfilePage = () => {
           </div>
         </div>
       )}
+      {showEditProfileModal && (
+  <EditProfileModal
+    initialData={profile}
+    onClose={() => setShowEditProfileModal(false)}
+    refreshProfile={() => {
+        const fetchProfile = async () => {
+          try {
+            const res = await fetch(`http://localhost:8080/api/profile/${username}`, { credentials: "include" });
+            if (!res.ok) throw new Error("Failed to fetch updated profile");
+            const data = await res.json();
+            setProfile(data);
+      
+            // ✨ If username changed, navigate to new URL
+            if (data.username !== username) {
+              navigate(`/profile/${data.username}`, { replace: true });
+            }
+          } catch (err) {
+            console.error(err.message);
+          }
+        };
+        fetchProfile();
+      }}
+      
+  />
+)}
+
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <EditPostModal
             postId={editingPostId}
-            onClose={() => setShowEditModal(false)}
-            refreshPosts={() => {
-              // Re-fetch posts after edit
-              const fetchMyPosts = async () => {
-                try {
-                  const res = await fetch('http://localhost:8080/api/v1/posts/my-posts', {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                  });
-                  const data = await res.json();
-                  if (res.ok) {
-                    setMyPosts(data);
+            onClose={() => {
+                setShowEditModal(false);
+                fetchMyPosts();
+              }}
+            refreshProfile={() => {
+                const fetchProfile = async () => {
+                  try {
+                    const res = await fetch(`http://localhost:8080/api/profile/${username}`, { credentials: "include" });
+                    if (!res.ok) throw new Error("Failed to fetch updated profile");
+                    const data = await res.json();
+                    setProfile(data);
+              
+                    // ✨ If username changed, navigate to new URL
+                    if (data.username !== username) {
+                      navigate(`/profile/${data.username}`, { replace: true });
+                    }
+                  } catch (err) {
+                    console.error(err.message);
                   }
-                } catch (err) {
-                  console.error('Error refreshing posts:', err.message);
-                }
-              };
-              fetchMyPosts();
-            }}
+                };
+                fetchProfile();
+              }}
+              
           />
         </div>
       )}
@@ -330,6 +370,7 @@ const ProfilePage = () => {
     </div>
     
   );
+  
 };
 
 export default ProfilePage;
