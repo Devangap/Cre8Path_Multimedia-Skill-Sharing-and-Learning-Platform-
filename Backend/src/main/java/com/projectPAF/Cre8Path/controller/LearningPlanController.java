@@ -168,4 +168,7 @@ public class LearningPlanController {
     public ResponseEntity<List<LearningPlan>> getAllLearningPlans() {
         return ResponseEntity.ok(learningPlanService.getAllLearningPlans());
     }
+
+    
+
 }

@@ -404,7 +404,9 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import PostUpload from "../../components/PostUpload";
 import EditPostModal from "../EditPost";
 import EditProfileModal from "./EditProfileModal";
+
 import LearningPlanCreate from "../LearningPlans/LearningPlanCreate"; // LearningPlanCreate
+import LearningPlanList from "../LearningPlans/LearningPlanList";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -634,6 +636,9 @@ const ProfilePage = () => {
           </div>
         )}
       </div>
+
+      {/* My Learning Plans */}
+      <LearningPlanList />
 
       {/* Modals */}
       {showPostModal && (

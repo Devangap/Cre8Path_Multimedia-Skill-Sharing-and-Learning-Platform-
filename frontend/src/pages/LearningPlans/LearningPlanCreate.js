@@ -31,7 +31,7 @@ const LearningPlanCreate = () => {
 
       if (res.ok) {
         alert("Learning Plan created successfully!");
-        navigate("/profile/me"); // or where you want to redirect
+        navigate("/profile/me"); // where you want to redirect
       } else {
         const errorMsg = await res.text();
         alert("Error: " + errorMsg);
