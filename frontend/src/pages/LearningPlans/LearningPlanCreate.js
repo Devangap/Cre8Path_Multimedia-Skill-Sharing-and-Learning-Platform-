@@ -30,15 +30,15 @@ const LearningPlanCreate = () => {
       });
 
       if (res.ok) {
-        alert("✅ Learning Plan created successfully!");
+        alert("Learning Plan created successfully!");
         navigate("/profile/me"); // or where you want to redirect
       } else {
         const errorMsg = await res.text();
-        alert("❌ Error: " + errorMsg);
+        alert("Error: " + errorMsg);
       }
     } catch (err) {
       console.error(err);
-      alert("❌ Something went wrong!");
+      alert("Something went wrong!");
     }
   };
 
@@ -90,13 +90,22 @@ const LearningPlanCreate = () => {
               onChange={handleChange}
               className="w-full p-2 border rounded"/>
           </div>
-          <input
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            placeholder="Status (e.g., Not Started, In Progress)"
-            className="w-full p-2 border rounded"
-          />
+          <div className="flex flex-col">
+            <label className="text-sm text-gray-500 mb-1">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded bg-white"
+            >
+              <option value="">Select Status</option>
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="On Hold">On Hold</option>
+            </select>
+          </div>
 
           <button
             type="submit"
