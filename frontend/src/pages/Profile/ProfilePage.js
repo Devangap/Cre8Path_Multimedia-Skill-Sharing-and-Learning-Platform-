@@ -19,6 +19,8 @@ const ProfilePage = () => {
 
 
 
+
+
   const handleDelete = async (postId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this post?");
     if (!confirmDelete) return;
@@ -34,7 +36,7 @@ const ProfilePage = () => {
   
       alert("Post deleted successfully.");
   
-      // ✅ Remove deleted post from UI
+     
       setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
       
     } catch (err) {
@@ -313,19 +315,24 @@ const ProfilePage = () => {
     initialData={profile}
     onClose={() => setShowEditProfileModal(false)}
     refreshProfile={() => {
-      // Refresh profile after editing
-      const fetchProfile = async () => {
-        try {
-          const res = await fetch(`http://localhost:8080/api/profile/${username}`, { credentials: "include" });
-          if (!res.ok) throw new Error("Failed to fetch updated profile");
-          const data = await res.json();
-          setProfile(data);
-        } catch (err) {
-          console.error(err.message);
-        }
-      };
-      fetchProfile();
-    }}
+        const fetchProfile = async () => {
+          try {
+            const res = await fetch(`http://localhost:8080/api/profile/${username}`, { credentials: "include" });
+            if (!res.ok) throw new Error("Failed to fetch updated profile");
+            const data = await res.json();
+            setProfile(data);
+      
+            // ✨ If username changed, navigate to new URL
+            if (data.username !== username) {
+              navigate(`/profile/${data.username}`, { replace: true });
+            }
+          } catch (err) {
+            console.error(err.message);
+          }
+        };
+        fetchProfile();
+      }}
+      
   />
 )}
 
@@ -333,26 +340,29 @@ const ProfilePage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <EditPostModal
             postId={editingPostId}
-            onClose={() => setShowEditModal(false)}
-            refreshPosts={() => {
-              // Re-fetch posts after edit
-              const fetchMyPosts = async () => {
-                try {
-                  const res = await fetch('http://localhost:8080/api/v1/posts/my-posts', {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                  });
-                  const data = await res.json();
-                  if (res.ok) {
-                    setMyPosts(data);
+            onClose={() => {
+                setShowEditModal(false);
+                fetchMyPosts();
+              }}
+            refreshProfile={() => {
+                const fetchProfile = async () => {
+                  try {
+                    const res = await fetch(`http://localhost:8080/api/profile/${username}`, { credentials: "include" });
+                    if (!res.ok) throw new Error("Failed to fetch updated profile");
+                    const data = await res.json();
+                    setProfile(data);
+              
+                    // ✨ If username changed, navigate to new URL
+                    if (data.username !== username) {
+                      navigate(`/profile/${data.username}`, { replace: true });
+                    }
+                  } catch (err) {
+                    console.error(err.message);
                   }
-                } catch (err) {
-                  console.error('Error refreshing posts:', err.message);
-                }
-              };
-              fetchMyPosts();
-            }}
+                };
+                fetchProfile();
+              }}
+              
           />
         </div>
       )}

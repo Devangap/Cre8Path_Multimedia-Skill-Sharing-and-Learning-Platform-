@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -127,7 +129,7 @@ public class ProfileController {
 
         return ResponseEntity.ok(profileDTO);
     }
-    @PostMapping("/update")
+    @PutMapping(value = "/update", consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateProfile(
             @RequestParam("username") String username,
             @RequestParam("fullName") String fullName,
@@ -136,25 +138,6 @@ public class ProfileController {
             @RequestParam("website") String website,
             @RequestParam("skills") String skillsJson,
             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
-            @AuthenticationPrincipal OAuth2User oauth2User,
-            Principal principal
-    ) {
-        String email = (oauth2User != null) ? oauth2User.getAttribute("email") : principal.getName();
-        if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-        }
-
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        Profile profile = profileService.updateProfile(optionalUser.get(), username, fullName, bio, location, website, skillsJson, profilePicture);
-
-        return ResponseEntity.ok("Profile updated successfully!");
-    }
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteMyProfile(
             @AuthenticationPrincipal OAuth2User oauth2User,
             Principal principal
     ) {
@@ -170,11 +153,62 @@ public class ProfileController {
         }
 
         try {
-            profileService.deleteProfile(optionalUser.get());
-            return ResponseEntity.ok("✅ Profile deleted successfully!");
+            Profile updatedProfile = profileService.updateProfile(
+                    optionalUser.get(),
+                    username,
+                    fullName,
+                    bio,
+                    location,
+                    website,
+                    skillsJson,
+                    profilePicture
+            );
+
+            // You can return the updated profile if you want, or just a success message
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "✅ Profile updated successfully!");
+            response.put("newUsername", updatedProfile.getUsername()); // 👈 Optional: Return new username if changed
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating profile: " + e.getMessage());
         }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Map<String, String>> deleteProfile(
+            @AuthenticationPrincipal OAuth2User oauth2User,
+            Principal principal,
+            @RequestBody(required = false) String dummyBody
+
+    ) {
+        Map<String, String> response = new HashMap<>();
+
+        String email = (oauth2User != null) ? oauth2User.getAttribute("email") : principal.getName();
+
+        if (email == null) {
+            response.put("error", "User not authenticated");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            response.put("error", "User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        try {
+            profileService.deleteProfile(optionalUser.get());
+            response.put("message", "✅ Profile deleted successfully!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("error", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
     }
 
 

@@ -150,14 +150,15 @@ public class ProfileService {
 
     @Transactional
     public void deleteProfile(User user) {
-        Optional<Profile> optionalProfile = profileRepository.findByUser(user);
+        Optional<Profile> profileOpt = profileRepository.findByUser(user);
 
-        if (optionalProfile.isPresent()) {
-            profileRepository.delete(optionalProfile.get());
-        } else {
-            throw new IllegalStateException("Profile not found for user");
+        if (profileOpt.isEmpty()) {
+            throw new IllegalStateException("Profile does not exist for user: " + user.getEmail());
         }
+
+        profileRepository.delete(profileOpt.get());
     }
+
 
 
 

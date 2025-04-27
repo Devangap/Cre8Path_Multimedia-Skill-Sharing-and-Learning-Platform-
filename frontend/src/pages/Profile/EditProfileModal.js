@@ -33,21 +33,25 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
     try {
       const res = await fetch('http://localhost:8080/api/profile/delete', {
         method: 'DELETE',
-        credentials: 'include',
+        headers: { "Content-Type": "application/json" }, 
+        credentials: 'include',  
       });
   
+      const data = await res.json();
+  
       if (res.ok) {
-        alert('✅ Profile deleted successfully!');
-        window.location.href = "/"; // 👈 Redirect to home or login page
+        alert(data.message || "Profile deleted successfully!");
+        window.location.href = "/";
       } else {
-        const errorMsg = await res.text();
-        alert('❌ Error: ' + errorMsg);
+        alert(data.error || "Something went wrong");
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Something went wrong while deleting your profile.');
+      alert('❌ Failed to delete your profile.');
     }
   };
+  
+  
   
 
   const handleInputChange = (e) => {
@@ -86,24 +90,42 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
     }
   
     try {
-      const res = await fetch("http://localhost:8080/api/profile/update", { // ✨ FIXED: capture into res
-        method: "POST",
+      const res = await fetch("http://localhost:8080/api/profile/update", {
+        method: "PUT",
         credentials: "include",
         body: formDataToSend,
       });
   
       if (res.ok) {
-        alert("Profile updated successfully!");
-        window.location.reload();
+        alert("✅ Profile updated successfully!");
+
+        const refreshedProfileRes = await fetch("http://localhost:8080/api/profile/me", {
+          credentials: "include",
+        });
+  
+        if (refreshedProfileRes.ok) {
+          const refreshedProfile = await refreshedProfileRes.json();
+
+          if (refreshedProfile.username !== initialData.username) {
+            window.location.href = `/profile/${refreshedProfile.username}`;
+          } else {
+            onClose();
+            refreshProfile();
+          }
+        } else {
+          onClose();
+          refreshProfile();
+        }
       } else {
         const errorMsg = await res.text();
-        alert("Error: " + errorMsg);
+        alert("❌ Error: " + errorMsg);
       }
     } catch (err) {
       console.error(err);
       alert("Something went wrong while updating your profile.");
     }
   };
+  
   
   
   return (
@@ -210,7 +232,7 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
           <div className="col-span-2 mt-4">
   <button
     type="button"
-    onClick={handleDeleteProfile}  // 🔥 We'll define this below
+    onClick={handleDeleteProfile}  
     className="w-full bg-red-500 text-white py-3 rounded hover:bg-red-600 transition"
   >
     Delete Profile
