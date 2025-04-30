@@ -169,11 +169,13 @@ public class LearningPlanController {
         return ResponseEntity.ok(learningPlanService.getAllLearningPlans());
     }
 
-    // Get only the current logged-in user's learning plans
     @GetMapping("/my-plans")
     public ResponseEntity<?> getMyLearningPlans(@AuthenticationPrincipal Object principal) {
+        Map<String, String> response = new HashMap<>();
+
         if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            response.put("error", "Unauthorized access. Please log in.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         String email = null;
@@ -185,17 +187,47 @@ public class LearningPlanController {
         }
 
         if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not found");
+            response.put("error", "Email not found in authentication principal.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            response.put("error", "User not found in the system.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        // Fetch only this user's plans
         List<LearningPlan> myPlans = learningPlanService.getLearningPlansByUser(user);
         return ResponseEntity.ok(myPlans);
     }
+
+//     Get only the current logged-in user's learning plans
+//    @GetMapping("/my-plans")
+//    public ResponseEntity<?> getMyLearningPlans(@AuthenticationPrincipal Object principal) {
+//        if (principal == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+//        }
+//
+//        String email = null;
+//
+//        if (principal instanceof OAuth2User oauthUser) {
+//            email = oauthUser.getAttribute("email");
+//        } else if (principal instanceof org.springframework.security.core.userdetails.User user) {
+//            email = user.getUsername();
+//        }
+//
+//        if (email == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not found");
+//        }
+//
+//        User user = userRepository.findByEmail(email).orElse(null);
+//        if (user == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+//        }
+//
+//        // Fetch only this user's plans
+//        List<LearningPlan> myPlans = learningPlanService.getLearningPlansByUser(user);
+//        return ResponseEntity.ok(myPlans);
+//    }
 
 }
