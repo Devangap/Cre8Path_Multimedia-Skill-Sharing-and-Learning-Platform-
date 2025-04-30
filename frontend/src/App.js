@@ -25,6 +25,7 @@ import LearningpEdit from './pages/Learningp/LearningpEdit';
 
 // LearningPlan
 import LearningPlanCreate from "./pages/LearningPlans/LearningPlanCreate";
+import MyLearningPlans from './pages/LearningPlans/MyLearningPlans';
 
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
   {/* <Route path="/learning-plans/create" element={<LearningPlanCreate />} /> */}
   <Route path="/profile/:username" element={<ProfilePage />} />
   <Route path="/learning-plans/create" element={<ProfilePage />} />
+  <Route path="/my-learning-plans" element={<MyLearningPlans />} />
 
 
 </Routes>

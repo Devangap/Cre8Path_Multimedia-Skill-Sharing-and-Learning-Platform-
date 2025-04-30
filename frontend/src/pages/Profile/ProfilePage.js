@@ -407,6 +407,7 @@ import EditProfileModal from "./EditProfileModal";
 
 import LearningPlanCreate from "../LearningPlans/LearningPlanCreate"; // LearningPlanCreate
 import LearningPlanList from "../LearningPlans/LearningPlanList";
+import MyLearningPlans from "../LearningPlans/MyLearningPlans";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -637,8 +638,13 @@ const ProfilePage = () => {
         )}
       </div>
 
-      {/* My Learning Plans */}
-      <LearningPlanList />
+      {/* Learning Plans Section */}
+      <div className="mt-24">
+        <h2 className="text-2xl font-bold mb-4">My Learning Plans</h2>
+        <MyLearningPlans />
+      </div>
+      {/* My Learning Plans
+      <LearningPlanList /> */}
 
       {/* Modals */}
       {showPostModal && (
