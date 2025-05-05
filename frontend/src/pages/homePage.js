@@ -38,6 +38,8 @@ const Home = ({ setUserEmail }) => {
       });
   }, [setUserEmail, navigate]);
 
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -133,65 +135,64 @@ const Home = ({ setUserEmail }) => {
 
         {/* Right side - Login Section */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mt-10">
-          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-            Sign In or Get Started
-          </h2>
+  <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+    Sign In or Get Started
+  </h2>
 
-          <div className="space-y-4">
-            {/* Social Logins */}
-            <a
-              href="http://localhost:8080/oauth2/authorization/google?prompt=select_account"
-              className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="h-5 w-5 mr-2"
-              />
-              Continue with Google
-            </a>
+  <div className="space-y-4">
+    {/* Social Logins */}
+    <a
+      href="http://localhost:8080/oauth2/authorization/google?prompt=select_account"
+      className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+    >
+      <img
+        src="https://www.svgrepo.com/show/475656/google-color.svg"
+        alt="Google"
+        className="h-5 w-5 mr-2"
+      />
+      Continue with Google
+    </a>
 
-            <a
-              href="http://localhost:8080/oauth2/authorization/facebook"
-              className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
-                alt="Facebook"
-                className="h-5 w-5 mr-2"
-              />
-              Continue with Facebook
-            </a>
+    {/* <a
+      href="http://localhost:8080/oauth2/authorization/facebook"
+      className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+    >
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+        alt="Facebook"
+        className="h-5 w-5 mr-2"
+      />
+      Continue with Facebook
+    </a>
 
-            <a
-              href="http://localhost:8080/oauth2/authorization/github"
-              className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-            >
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
-                alt="GitHub"
-                className="h-5 w-5 mr-2"
-              />
-              Continue with GitHub
-            </a>
+    <a
+      href="http://localhost:8080/oauth2/authorization/github"
+      className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+    >
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
+        alt="GitHub"
+        className="h-5 w-5 mr-2"
+      />
+      Continue with GitHub
+    </a> */}
 
-            {/* Email signup toggle */}
-            <button
-              onClick={() => setShowEmailSignup(true)}
-              className="block w-full text-center text-violet-600 font-semibold mt-4 hover:underline"
-            >
-              Continue with Email
-            </button>
-          </div>
+    {/* Email signup toggle */}
+    <button
+      onClick={() => setShowEmailSignup(true)}
+      className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+    >
+      <span className="text-violet-600 font-semibold">Continue with Email</span>
+    </button>
+  </div>
 
-          <p className="mt-6 text-xs text-gray-500 text-center">
-            By signing up, you agree to our{" "}
-            <span className="underline">Terms of Service</span> and{" "}
-            <span className="underline">Privacy Policy</span>.
-          </p>
-        </div>
-        
-      </div>
+  <p className="mt-6 text-xs text-gray-500 text-center">
+    By signing up, you agree to our{" "}
+    <span className="underline">Terms of Service</span> and{" "}
+    <span className="underline">Privacy Policy</span>.
+  </p>
+</div>
+</div>
       <div className="w-full flex flex-col items-center justify-center text-center bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 px-4 py-32">
   <h1 className="text-5xl font-bold text-white mb-6">
     Unlock Your Creativity with Cre8Path
