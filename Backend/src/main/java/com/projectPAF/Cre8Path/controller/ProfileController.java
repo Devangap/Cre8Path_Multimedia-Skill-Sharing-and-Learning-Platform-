@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,7 +42,12 @@ public class ProfileController {
         String email = null;
 
         if (oauth2User != null) {
+            System.out.println("Facebook OAuth2 User attributes: " + oauth2User.getAttributes());
             email = oauth2User.getAttribute("email");
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Facebook login did not return an email address.");
+            }
+
         } else if (principal != null) {
             email = principal.getName();
         }
@@ -182,7 +188,6 @@ public class ProfileController {
             @AuthenticationPrincipal OAuth2User oauth2User,
             Principal principal,
             @RequestBody(required = false) String dummyBody
-
     ) {
         Map<String, String> response = new HashMap<>();
 
@@ -200,16 +205,22 @@ public class ProfileController {
         }
 
         try {
-            profileService.deleteProfile(optionalUser.get());
-            response.put("message", "✅ Profile deleted successfully!");
+            profileService.deleteProfile(optionalUser.get());  // Call the service to delete the profile and user
+            response.put("message", "✅ Profile and user deleted successfully!");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             response.put("error", "Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProfiles(@RequestParam String query) {
+        List<Profile> profiles = profileService.searchProfiles(query); // Service method to search profiles
+        return ResponseEntity.ok(profiles);
+    }
+
 
 
 
