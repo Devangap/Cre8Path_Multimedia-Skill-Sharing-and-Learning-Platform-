@@ -106,8 +106,9 @@ public class ProfileService {
     }
 
     public Optional<Profile> getProfileByUser(User user) {
-        return profileRepository.findByUser(user);
+        return profileRepository.findByUser(user);  // Returns Optional<Profile>
     }
+
 
 
     @Transactional
@@ -150,13 +151,24 @@ public class ProfileService {
 
     @Transactional
     public void deleteProfile(User user) {
+        // First, find the Profile associated with the User
         Optional<Profile> profileOpt = profileRepository.findByUser(user);
 
         if (profileOpt.isEmpty()) {
             throw new IllegalStateException("Profile does not exist for user: " + user.getEmail());
         }
 
+        // Delete the profile
         profileRepository.delete(profileOpt.get());
+
+        // Now delete the User after deleting the Profile
+        userRepository.delete(user);  // Delete the user from the user repository
+    }
+
+
+    public List<Profile> searchProfiles(String query) {
+        // Search by username (you can add more fields to search if needed)
+        return profileRepository.findByUsernameContainingIgnoreCaseOrFullNameContainingIgnoreCase(query, query);
     }
 
 
