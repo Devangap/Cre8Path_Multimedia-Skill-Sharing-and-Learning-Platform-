@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import EditProfileModal from '../pages/Profile/EditProfileModal'; 
 
 const Sidebar = ({ userEmail }) => {
   const [userData, setUserData] = useState(null);
@@ -7,53 +8,73 @@ const Sidebar = ({ userEmail }) => {
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
 
-  // Handle Logout
-  const handleLogout = () => {
-    // Clear session and local storage
+  const handleLogout = async () => {
+    try {
+      // ✅ 1. Call backend logout to clear Spring Security session
+      await fetch("http://localhost:8080/api/v1/demo/logout", {
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  
+    // ✅ 2. Clear frontend storage/state
     localStorage.removeItem("userIdentifier");
     sessionStorage.removeItem("userIdentifier");
-
-    // Clear React states
     setUserData(null);
   
-    // Redirect to the homepage or login page
-    window.location.href = "/"; 
-  };
-
-  // Handle Profile Deletion
-  const handleDeleteProfile = async () => {
-    const confirmed = window.confirm("Are you sure you want to permanently delete your profile?");
-    if (!confirmed) return;
-  
-    try {
-      const res = await fetch('http://localhost:8080/api/profile/delete', {
-        method: 'DELETE',
-        headers: { "Content-Type": "application/json" }, 
-        credentials: 'include',  
-      });
-  
-      const data = await res.json();
-  
-      if (res.ok) {
-        alert(data.message || "Profile deleted successfully!");
-
-        // Clear session storage or local storage
-        localStorage.removeItem("userIdentifier");
-        sessionStorage.removeItem("userIdentifier");
-
-        // Clear the user data state
-        setUserData(null);
-
-        // Redirect to home or login page
-        window.location.href = "/"; // Redirect to the homepage or login page
-      } else {
-        alert(data.error || "Something went wrong");
-      }
-    } catch (err) {
-      console.error(err);
-      alert('❌ Failed to delete your profile.');
+    // ✅ 3. Optional: If using Google OAuth, redirect to Google logout
+    const isOAuthUser = userEmail && userEmail.endsWith("@gmail.com"); // crude check, customize if needed
+    if (isOAuthUser) {
+      // Redirect to Google's logout and then back to your app
+      window.location.href = "https://accounts.google.com/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000/";
+    } else {
+      // Normal user logout
+      window.location.href = "/";
     }
   };
+  
+  
+
+  // Handle Profile Deletion
+  // const handleDeleteProfile = async () => {
+  //   const confirmed = window.confirm("Are you sure you want to permanently delete your profile?");
+  //   if (!confirmed) return;
+  
+  //   try {
+  //     const res = await fetch('http://localhost:8080/api/profile/delete', {
+  //       method: 'DELETE',
+  //       headers: { "Content-Type": "application/json" }, 
+  //       credentials: 'include',  
+  //     });
+  
+  //     const data = await res.json();
+  
+  //     if (res.ok) {
+  //       alert(data.message || "Profile deleted successfully!");
+      
+  //       // 🔐 Trigger backend logout
+  //       await fetch("http://localhost:8080/api/v1/demo/logout", {
+  //         credentials: "include",
+  //       });
+      
+  //       // 🧹 Clear frontend state
+  //       localStorage.removeItem("userIdentifier");
+  //       sessionStorage.removeItem("userIdentifier");
+  //       setUserData(null);
+      
+  //       // 🔄 Redirect to login/home
+  //       window.location.href = "/";
+  //     }
+      
+  //     else {
+  //       alert(data.error || "Something went wrong");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert('❌ Failed to delete your profile.');
+  //   }
+  // };
 
   // Fetch user data
   const fetchUserData = async () => {
@@ -191,6 +212,7 @@ const Sidebar = ({ userEmail }) => {
             Sign In
           </a>
         )}
+        
       </div>
     </div>
   );
