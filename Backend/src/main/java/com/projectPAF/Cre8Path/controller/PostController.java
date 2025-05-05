@@ -82,4 +82,12 @@ public class PostController {
         logger.info("Received request to update post with id: {}", id);
         return postService.updatePost(id, postDTO, oauth2User, principal);
     }
+    @GetMapping("/user/{username}")
+    public ResponseEntity<?> getPostsByUsername(@PathVariable String username)
+    {
+        return postService.getPostsByUsername(username);
+    }
+
+
+
 }

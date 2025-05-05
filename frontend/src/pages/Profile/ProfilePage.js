@@ -16,6 +16,9 @@ const ProfilePage = () => {
   const [showEditModal, setShowEditModal] = useState(false); // For edit modal
   const [editingPostId, setEditingPost] = useState(null); // For the post being edited
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const isOwnProfile = currentUser?.username === profile?.username;
+
 
 
 
@@ -48,49 +51,115 @@ const ProfilePage = () => {
 
    // 🔥 For dropdown toggle
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Profile not found");
-        const data = await res.json();
-        setProfile(data);
-        console.log("Profile data:", data); // Debugging line
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
-
-    fetchProfile();
-  }, [username]);
-  const fetchMyPosts = async () => {
+   const fetchProfile = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/v1/posts/my-posts', {
+      const profileRes = await fetch(`http://localhost:8080/api/profile/${username}`, {
+        credentials: "include",
+      });
+      if (!profileRes.ok) throw new Error("Profile not found");
+      const profileData = await profileRes.json();
+  
+      // 🧠 Fetch follow status separately
+      const followRes = await fetch(`http://localhost:8080/api/follow/${username}/status`, {
+        credentials: "include",
+      });
+      const followData = followRes.ok ? await followRes.json() : {};
+  
+      setProfile({
+        ...profileData,
+        isFollowing: followData.isFollowing || false,
+        followerCount: followData.followerCount || 0,
+        followingCount: followData.followingCount || 0,
+      });
+  
+    } catch (err) {
+      console.error("Error fetching profile:", err.message);
+    }
+  };
+  
+  
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/profile/me", {
+        credentials: "include",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setCurrentUser(data);
+    } catch (err) {
+      console.error("Error fetching current user:", err.message);
+    }
+  };
+  
+//   const fetchMyPosts = async () => {
+//     try {
+//       const res = await fetch('http://localhost:8080/api/v1/posts/my-posts', {
+//         method: 'GET',
+//         headers: { 'Content-Type': 'application/json' },
+//         credentials: 'include',
+//       });
+  
+//       const data = await res.json();
+//       console.log('Fetched my posts:', data);
+  
+//       if (res.ok) {
+//         setMyPosts(data);
+//       } else {
+//         console.error('Failed to fetch my posts');
+//       }
+//     } catch (err) {
+//       console.error('Error fetching my posts:', err.message);
+//     }
+//   };
+const fetchMyPosts = async () => {
+    try {
+      let url = '';
+  
+      if (currentUser?.username === username) {
+        console.log(username)
+        url = 'http://localhost:8080/api/v1/posts/my-posts';
+      } else {
+        url = `http://localhost:8080/api/v1/posts/user/${username}`;
+      }
+  
+      const res = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       });
   
       const data = await res.json();
-      console.log('Fetched my posts:', data);
-  
       if (res.ok) {
-        setMyPosts(data);
+        const filtered = currentUser?.username === username
+          ? data
+          : data.filter((post) => post.isPublic); 
+        setMyPosts(filtered);
       } else {
-        console.error('Failed to fetch my posts');
+        console.error('Failed to fetch user posts');
       }
     } catch (err) {
-      console.error('Error fetching my posts:', err.message);
-    }
+      console.error('Error fetching user posts:', err.message);
+    }
   };
+  
+  
+  // 🌟 Combine all in one useEffect
   useEffect(() => {
-    fetchMyPosts();
-  }, []);
+    const init = async () => {
+      await fetchCurrentUser();
+      await fetchProfile();
+    };
+  
+    init();
+  }, [username]);
   
   
-
+  useEffect(() => {
+    if (currentUser && username) {
+      fetchMyPosts(); 
+    }
+  }, [currentUser, username]);
+  
   if (!profile) {
     return <div className="text-center mt-20 text-gray-500">Loading profile...</div>;
   }
@@ -124,14 +193,37 @@ const ProfilePage = () => {
           <div className="flex items-center gap-6">
             <h2 className="text-3xl font-bold">{profile.username}</h2>
             <div className="relative flex gap-4">
-            <button
-  onClick={() => setShowEditProfileModal(true)}
-  className="px-6 py-2 rounded text-white hover:opacity-90 transition"
-  style={{ backgroundColor: "#A367B1" }}
->
-  Edit Profile
-</button>
+            {isOwnProfile ? (
+  <button
+    onClick={() => setShowEditProfileModal(true)}
+    className="px-6 py-2 rounded text-white hover:opacity-90 transition"
+    style={{ backgroundColor: "#A367B1" }}
+  >
+    Edit Profile
+  </button>
+) : (
+  <button
+    onClick={async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/follow/${profile.username}`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error("Failed to follow/unfollow");
+        fetchProfile(); // refresh profile data to update follow status
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }}
+    className="px-6 py-2 rounded text-white hover:opacity-90 transition"
+    style={{ backgroundColor: "#A367B1" }}
+  >
+    {profile.isFollowing ? "Unfollow" : "Follow"}
+  </button>
+)}
 
+
+       {isOwnProfile && (
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
@@ -176,21 +268,22 @@ const ProfilePage = () => {
 )}
 
               </div>
+              )}
             </div>
           </div>
 
           {/* Stats */}
           <div className="flex gap-16 mt-8">
             <div className="text-center">
-              <h4 className="text-2xl font-bold">0</h4>
+              <h4 className="text-2xl font-bold">{myPosts.length}</h4>
               <p className="text-sm text-gray-500">Posts</p>
             </div>
             <div className="text-center">
-              <h4 className="text-2xl font-bold">0</h4>
+              <h4 className="text-2xl font-bold">{profile.followerCount}</h4>
               <p className="text-sm text-gray-500">Followers</p>
             </div>
             <div className="text-center">
-              <h4 className="text-2xl font-bold">0</h4>
+              <h4 className="text-2xl font-bold">{profile.followingCount}</h4>
               <p className="text-sm text-gray-500">Following</p>
             </div>
           </div>

@@ -4,6 +4,7 @@ import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
 import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.PostRepository;
+import com.projectPAF.Cre8Path.repository.ProfileRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,6 +30,8 @@ public class PostService {
     private static final String UPLOAD_DIR = "uploads/";
 
     private final PostRepository postRepository;
+    private final ProfileRepository profileRepository;
+
     private final UserRepository userRepository;
 
     public ResponseEntity<Map<String, String>> createPost(PostCreateDTO postDTO, OAuth2User oauth2User, Principal principal) {
@@ -233,4 +236,23 @@ public class PostService {
             if (file.exists()) file.delete();
         }
     }
+    public ResponseEntity<?> getPostsByUsername(String username) {
+        Optional<com.projectPAF.Cre8Path.model.Profile> optionalProfile = profileRepository.findByUsername(username);
+
+        if (optionalProfile.isPresent()) {
+            User user = optionalProfile.get().getUser();
+            List<Post> posts = postRepository.findByUser(user);
+            return ResponseEntity.ok(posts); // ✅ success returns List<Post>
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found")); // ✅ error returns Map<String, String>
+        }
+    }
+
+
+
+
+
+
 }
