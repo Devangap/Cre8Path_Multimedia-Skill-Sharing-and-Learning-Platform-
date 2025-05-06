@@ -22,6 +22,11 @@ const ProfilePage = () => {
   const [editingPostId, setEditingPost] = useState(null);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
 
+  const [myLearningPlans, setMyLearningPlans] = useState([]);
+  const [editingPlanId, setEditingPlanId] = useState(null);
+// const [showEditPlanModal, setShowEditPlanModal] = useState(false); // if using modal
+
+
   const handleDelete = async (postId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this post?");
     if (!confirmDelete) return;
@@ -95,6 +100,52 @@ const ProfilePage = () => {
   } catch (err) {
     skillsArray = [];
   }
+
+
+  const fetchMyLearningPlans = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/learning-plans/my-plans", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        setMyLearningPlans(data);
+      } else {
+        console.error("Failed to fetch learning plans");
+      }
+    } catch (err) {
+      console.error("Error fetching learning plans:", err.message);
+    }
+  };
+  
+  const handleDeleteLearningPlan = async (id) => {
+    const confirm = window.confirm("Are you sure you want to delete this learning plan?");
+    if (!confirm) return;
+  
+    try {
+      const res = await fetch(`http://localhost:8080/learning-plans/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+  
+      if (!res.ok) throw new Error("Failed to delete learning plan");
+  
+      setMyLearningPlans((prev) => prev.filter((plan) => plan.id !== id));
+      alert("Deleted successfully");
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+  
+  // optional
+  const handleEditLearningPlan = (plan) => {
+    setEditingPlanId(plan.id);
+    // setShowEditPlanModal(true); // if using modal
+  };
+
 
   return (
     <div className="min-h-screen bg-white text-gray-900 ml-64 px-6 py-10">

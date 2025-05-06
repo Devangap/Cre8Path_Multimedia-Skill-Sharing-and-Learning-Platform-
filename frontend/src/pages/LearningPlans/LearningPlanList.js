@@ -5,19 +5,19 @@ const LearningPlanList = () => {
 
   const fetchLearningPlans = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/v1/learning-plans/my-plans', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const res = await fetch("http://localhost:8080/learning-plans/my-plans", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
         setLearningPlans(data);
       } else {
-        console.error('Failed to fetch learning plans');
+        console.error("Failed to fetch learning plans");
       }
     } catch (err) {
-      console.error('Error fetching learning plans:', err.message);
+      console.error("Error fetching learning plans:", err.message);
     }
   };
 
@@ -35,11 +35,11 @@ const LearningPlanList = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {learningPlans.map((plan) => (
           <div key={plan.id} className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-semibold mb-2">{plan.topic}</h3>
-            <p className="text-gray-600 text-sm">Timeline: {plan.timeline}</p>
-            <p className="text-gray-500 text-sm">Status: {plan.status}</p>
-            <p className="text-gray-500 text-sm">Start: {plan.startDate}</p>
-            <p className="text-gray-500 text-sm">End: {plan.endDate}</p>
+            <h3 className="text-lg font-semibold mb-2">{plan.title}</h3>
+            <p className="text-gray-600 text-sm mb-1">{plan.objective}</p>
+            <p className="text-gray-500 text-sm mb-1">Topics: {plan.topics}</p>
+            <p className="text-gray-500 text-sm mb-1">Estimated Duration: {plan.estimatedDuration || "N/A"}</p>
+            <p className="text-gray-500 text-sm">Visibility: {plan.visibility}</p>
           </div>
         ))}
       </div>

@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 const LearningPlanCreate = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    topic: "",
+    title: "",
+    objective: "",
+    topics: "",
+    estimatedDuration: "",
     resources: "",
-    timeline: "",
-    startDate: "",
-    endDate: "",
-    status: "",
+    visibility: "Public",
   });
 
   const handleChange = (e) => {
@@ -22,16 +22,14 @@ const LearningPlanCreate = () => {
     try {
       const res = await fetch("http://localhost:8080/learning-plans", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
         alert("Learning Plan created successfully!");
-        navigate("/profile/me"); // where you want to redirect
+        navigate(-1); // Go back to profile
       } else {
         const errorMsg = await res.text();
         alert("Error: " + errorMsg);
@@ -43,79 +41,76 @@ const LearningPlanCreate = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">Create New Learning Plan</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white p-6 rounded shadow-md max-w-xl w-full mx-auto"
+    >
+      <h2 className="text-2xl font-bold mb-4 text-center">Create Learning Plan</h2>
 
-        <div className="space-y-4">
-          <input
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-            placeholder="Topic"
-            required
-            className="w-full p-2 border rounded"
-          />
-          <textarea
-            name="resources"
-            value={formData.resources}
-            onChange={handleChange}
-            placeholder="Resources (YouTube, Udemy, etc.)"
-            rows="3"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            name="timeline"
-            value={formData.timeline}
-            onChange={handleChange}
-            placeholder="Timeline (eg: 3 months)"
-            className="w-full p-2 border rounded"
-          />
-          <div className="flex flex-col">
-            <label className="text-sm text-gray-500 mb-1">Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-sm text-gray-500 mb-1">End Date</label>
-            <input
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"/>
-          </div>
-          <div className="flex flex-col">
-            <label className="text-sm text-gray-500 mb-1">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded bg-white"
-            >
-              <option value="">Select Status</option>
-              <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="On Hold">On Hold</option>
-            </select>
-          </div>
+      <input
+        type="text"
+        name="title"
+        placeholder="Title"
+        required
+        className="w-full p-2 border rounded"
+        value={formData.title}
+        onChange={handleChange}
+      />
 
-          <button
-            type="submit"
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-2 rounded"
-          >
-            Create Learning Plan
-          </button>
-        </div>
-      </form>
-    </div>
+      <textarea
+        name="objective"
+        placeholder="Objective"
+        required
+        className="w-full p-2 border rounded"
+        value={formData.objective}
+        onChange={handleChange}
+      />
+
+      <input
+        type="text"
+        name="topics"
+        placeholder="Topics (comma-separated)"
+        required
+        className="w-full p-2 border rounded"
+        value={formData.topics}
+        onChange={handleChange}
+      />
+
+      <input
+        type="text"
+        name="estimatedDuration"
+        placeholder="Estimated Duration (e.g. 4 weeks)"
+        className="w-full p-2 border rounded"
+        value={formData.estimatedDuration}
+        onChange={handleChange}
+      />
+
+      <textarea
+        name="resources"
+        placeholder="Resources (e.g. FreeCodeCamp – HTML)"
+        className="w-full p-2 border rounded"
+        value={formData.resources}
+        onChange={handleChange}
+      />
+
+      <select
+        name="visibility"
+        required
+        className="w-full p-2 border rounded"
+        value={formData.visibility}
+        onChange={handleChange}
+      >
+        <option value="Public">Public</option>
+        <option value="Private">Private</option>
+      </select>
+
+      <button
+        type="submit"
+        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded"
+      >
+        Save Plan
+      </button>
+    </form>
   );
 };
 
