@@ -2,6 +2,7 @@ package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
+import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.ProfileRepository;
@@ -236,19 +237,25 @@ public class PostService {
             if (file.exists()) file.delete();
         }
     }
-    public ResponseEntity<?> getPostsByUsername(String username) {
-        Optional<com.projectPAF.Cre8Path.model.Profile> optionalProfile = profileRepository.findByUsername(username);
+//    public ResponseEntity<?> getPostsByUsername(String username) {
+//        List<Post> posts = postRepository.findByUserUsername(username);
+//        return ResponseEntity.ok(posts);
+//    }
 
-        if (optionalProfile.isPresent()) {
-            User user = optionalProfile.get().getUser();
-            List<Post> posts = postRepository.findByUser(user);
-            return ResponseEntity.ok(posts); // ✅ success returns List<Post>
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found")); // ✅ error returns Map<String, String>
+    public ResponseEntity<?> getPostsByUsername(String username) {
+        // Lookup the user's email from Profile table using username
+        Optional<Profile> profileOpt = profileRepository.findByUsername(username);
+        if (profileOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
+
+        String email = profileOpt.get().getUser().getEmail();
+        List<Post> posts = postRepository.findByUserEmail(email);
+        return ResponseEntity.ok(posts);
     }
+
+
+
 
 
 

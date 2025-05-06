@@ -130,11 +130,9 @@ const fetchMyPosts = async () => {
   
       const data = await res.json();
       if (res.ok) {
-        const filtered = currentUser?.username === username
-          ? data
-          : data.filter((post) => post.isPublic); 
-        setMyPosts(filtered);
-      } else {
+        setMyPosts(data); // No filtering
+      }
+       else {
         console.error('Failed to fetch user posts');
       }
     } catch (err) {

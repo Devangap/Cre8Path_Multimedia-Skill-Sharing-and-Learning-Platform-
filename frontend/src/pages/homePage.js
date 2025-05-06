@@ -31,7 +31,9 @@ const Home = ({ setUserEmail }) => {
           navigate("/questionnaire");
         } else {
           localStorage.setItem("questionnaireCompleted", "true");
+          navigate("/feed"); // ✅ Redirect to the feed page
         }
+        
       })
       .catch(() => {
         setUserMessage("Please sign in to access full features.");

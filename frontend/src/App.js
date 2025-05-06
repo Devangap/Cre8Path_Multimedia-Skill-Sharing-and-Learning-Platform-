@@ -12,6 +12,7 @@ import PostLogin from './pages/PostLogin';
 import MyPosts from './pages/MyPosts';
 import EditPost from './pages/EditPost';
 import PostDetails from './pages/PostDetails';
+import Feed from './pages/Feed';
 
 import ProfileForm from './pages/Profile/ProfileForm';
 import ProfilePage from './pages/Profile/ProfilePage';
@@ -57,6 +58,7 @@ function App() {
   <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
   <Route path="/questionnaire" element={<Questionnaire />} />
   <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
+  <Route path="/feed" element={<Feed />} />
 
   <Route path="/post-login" element={<PostLogin setUserEmail={setUserIdentifier} />} /> {/* ✅ THIS */}
 
