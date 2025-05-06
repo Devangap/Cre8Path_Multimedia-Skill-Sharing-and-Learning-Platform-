@@ -1,63 +1,116 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 const PostDetails = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [post, setPost] = useState(null);
-    const [error, setError] = useState(null);
-    const BASE_URL = 'http://localhost:8080';
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
+  const [error, setError] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const BASE_URL = 'http://localhost:8080';
 
-    useEffect(() => {
-        const fetchPost = async () => {
-            try {
-                const res = await fetch(`${BASE_URL}/api/v1/posts/${id}`, {
-                    credentials: 'include'
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Failed to load post.');
-                setPost(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        };
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/v1/posts/${id}`, {
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load post.');
+        setPost(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
 
-        fetchPost();
-    }, [id]);
+    fetchPost();
+  }, [id]);
 
-    if (error) {
-        return <div className="text-red-600 text-center mt-6">Error: {error}</div>;
-    }
-
-    if (!post) {
-        return <div className="text-center mt-6">Loading post...</div>;
-    }
-
-    return (
-        <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-            <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-            {post.imageUrl && (
-                <img
-                    src={`${BASE_URL}${post.imageUrl}`}
-                    alt={post.title}
-                    className="w-full h-60 object-cover rounded mb-4"
-                />
-            )}
-            <p className="text-gray-700 mb-2"><strong>Description:</strong> {post.description || 'N/A'}</p>
-            <p className="text-gray-700 mb-2"><strong>Category:</strong> {post.category}</p>
-            <p className="text-gray-700 mb-2"><strong>Skill Level:</strong> {post.skillLevel}</p>
-            <p className="text-gray-700 mb-2"><strong>Tags:</strong> {post.tags?.join(', ') || 'None'}</p>
-            <p className="text-gray-500 text-sm">Posted on: {new Date(post.createdAt).toLocaleString()}</p>
-            <p className="text-gray-500 text-sm">By: {post.userEmail}</p>
-
-            <button
-                className="mt-4 bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700"
-                onClick={() => navigate(-1)}
-            >
-                Go Back
-            </button>
-        </div>
+  const handlePrev = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? post.imageUrls.length - 1 : prev - 1
     );
+  };
+
+  const handleNext = () => {
+    setCurrentImageIndex((prev) =>
+      prev === post.imageUrls.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  if (error) {
+    return <div className="text-red-600 text-center mt-6">Error: {error}</div>;
+  }
+
+  if (!post) {
+    return <div className="text-center mt-6">Loading post...</div>;
+  }
+
+  const hasImages = post.imageUrls && post.imageUrls.length > 0;
+  const hasVideo = post.videoUrl && post.videoUrl.trim() !== '';
+
+  return (
+    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md relative">
+      <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+
+      {hasImages && (
+        <div className="relative mb-6">
+          <img
+            src={`${BASE_URL}${post.imageUrls[currentImageIndex]}`}
+            alt={`Image ${currentImageIndex + 1}`}
+            className="w-full h-60 object-cover rounded"
+          />
+          {post.imageUrls.length > 1 && (
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow"
+              >
+                <FaArrowLeft />
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow"
+              >
+                <FaArrowRight />
+              </button>
+              <div className="absolute bottom-2 right-4 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                {currentImageIndex + 1} / {post.imageUrls.length}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ✅ Video Display */}
+      {hasVideo && (
+        <div className="mb-6">
+          <video
+            src={`${BASE_URL}${post.videoUrl}`}
+            controls
+            className="w-full h-64 rounded shadow-md"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      )}
+
+      <p className="text-gray-700 mb-2"><strong>Description:</strong> {post.description || 'N/A'}</p>
+      <p className="text-gray-700 mb-2"><strong>Category:</strong> {post.category}</p>
+      <p className="text-gray-700 mb-2"><strong>Skill Level:</strong> {post.skillLevel}</p>
+      <p className="text-gray-700 mb-2"><strong>Tags:</strong> {post.tags?.join(', ') || 'None'}</p>
+      <p className="text-gray-500 text-sm">Posted on: {new Date(post.createdAt).toLocaleString()}</p>
+      <p className="text-gray-500 text-sm">By: {post.userEmail}</p>
+
+      <button
+        className="mt-6 bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700"
+        onClick={() => navigate(-1)}
+      >
+        Go Back
+      </button>
+    </div>
+  );
 };
 
-export default PostDetails;
+export default PostDetails;

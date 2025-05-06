@@ -3,6 +3,7 @@ package com.projectPAF.Cre8Path.controller;
 
 
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
+import com.projectPAF.Cre8Path.model.PostResponseDTO;
 
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
@@ -51,10 +52,11 @@ public class PostController {
     }
 
     @GetMapping("/feed")
-    public ResponseEntity<List<Post>> getFeed() {
+    public ResponseEntity<List<PostResponseDTO>> getFeed() {
         logger.info("Received request to fetch feed.");
         return postService.getFeed();
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
