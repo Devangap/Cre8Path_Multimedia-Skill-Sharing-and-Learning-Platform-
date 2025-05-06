@@ -166,7 +166,7 @@ const ProfilePage = () => {
     <button
       onClick={() => {
         setShowDropdown(false);
-        window.location.href = '/learningp'; // Navigate to /learningp
+        window.location.href = '/learningp/create'; // Navigate to /learningp
       }}
       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
     >
