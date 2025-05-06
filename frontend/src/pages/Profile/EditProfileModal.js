@@ -98,7 +98,6 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
   
       if (res.ok) {
         alert("✅ Profile updated successfully!");
-
         const refreshedProfileRes = await fetch("http://localhost:8080/api/profile/me", {
           credentials: "include",
         });
