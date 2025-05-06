@@ -72,7 +72,6 @@ const MyLearningPlans = () => {
 
   return (
     <div className="mt-10">
-      <h2 className="text-2xl font-bold mb-4">My Learning Plans</h2>
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
