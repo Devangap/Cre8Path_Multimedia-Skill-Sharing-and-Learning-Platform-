@@ -1,93 +1,110 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import PostUpload from "../../components/PostUpload";
 import EditPostModal from "../EditPost";
 import EditProfileModal from "./EditProfileModal";
-import LearningPlanCreate from "../LearningPlans/LearningPlanCreate";
 import MyLearningPlans from "../LearningPlans/MyLearningPlans";
-
 import LearningPlanModal from "../LearningPlans/LearningPlanModal";
-
 
 const ProfilePage = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-
   const [profile, setProfile] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showPostModal, setShowPostModal] = useState(false);
+  const [currentTab, setCurrentTab] = useState("posts");
   const [myPosts, setMyPosts] = useState([]);
+  const [showPostModal, setShowPostModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingPostId, setEditingPost] = useState(null);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-
-  const [myLearningPlans, setMyLearningPlans] = useState([]);
-  const [editingPlanId, setEditingPlanId] = useState(null);
-// const [showEditPlanModal, setShowEditPlanModal] = useState(false); // if using modal
+  const [showDropdown, setShowDropdown] = useState(false);
 
 
-  const handleDelete = async (postId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this post?");
-    if (!confirmDelete) return;
-
+  const fetchProfile = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/posts/${postId}/delete`, {
-        method: "DELETE",
+      const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
         credentials: "include",
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to delete post.");
-      }
-
-      alert("Post deleted successfully.");
-      setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      const data = await res.json();
+      setProfile(data);
     } catch (err) {
-      alert("Error: " + err.message);
+      console.error(err.message);
     }
   };
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Profile not found");
-        const data = await res.json();
-        setProfile(data);
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
-
-    fetchProfile();
-  }, [username]);
 
   const fetchMyPosts = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/v1/posts/my-posts", {
-        method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
-
       if (res.ok) {
         const data = await res.json();
         setMyPosts(data);
-      } else {
-        console.error("Failed to fetch my posts");
       }
     } catch (err) {
-      console.error("Error fetching my posts:", err.message);
+      console.error(err.message);
     }
   };
 
   useEffect(() => {
+    fetchProfile();
     fetchMyPosts();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".create-dropdown")) {
+        setShowDropdown(false);
+      }
+    };
+  
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+  
+
+  const renderTabContent = () => {
+    switch (currentTab) {
+      case "posts":
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
+            {myPosts.length === 0 ? (
+              <div className="text-center text-gray-600 col-span-full">No posts yet.</div>
+            ) : (
+              myPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
+                  onClick={() => navigate(`/posts/${post.id}`)}
+                >
+                  {post.imageUrl && (
+                    <img
+                      src={`http://localhost:8080${post.imageUrl}`}
+                      alt={post.title}
+                      className="w-full h-40 object-cover rounded mb-4"
+                    />
+                  )}
+                  <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
+                  <p className="text-gray-600 text-sm">
+                    {post.description ? post.description.substring(0, 80) + "..." : "No description"}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        );
+      case "learningPlans":
+        return <MyLearningPlans />;
+      case "learningProgress":
+        return <div className="text-center text-gray-500 mt-4">No learning progress yet.</div>;
+      default:
+        return null;
+    }
+  };
 
   if (!profile) {
     return <div className="text-center mt-20 text-gray-500">Loading profile...</div>;
@@ -100,52 +117,7 @@ const ProfilePage = () => {
   } catch (err) {
     skillsArray = [];
   }
-
-
-  const fetchMyLearningPlans = async () => {
-    try {
-      const res = await fetch("http://localhost:8080/learning-plans/my-plans", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
   
-      if (res.ok) {
-        const data = await res.json();
-        setMyLearningPlans(data);
-      } else {
-        console.error("Failed to fetch learning plans");
-      }
-    } catch (err) {
-      console.error("Error fetching learning plans:", err.message);
-    }
-  };
-  
-  const handleDeleteLearningPlan = async (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this learning plan?");
-    if (!confirm) return;
-  
-    try {
-      const res = await fetch(`http://localhost:8080/learning-plans/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-  
-      if (!res.ok) throw new Error("Failed to delete learning plan");
-  
-      setMyLearningPlans((prev) => prev.filter((plan) => plan.id !== id));
-      alert("Deleted successfully");
-    } catch (err) {
-      alert("Error: " + err.message);
-    }
-  };
-  
-  // optional
-  const handleEditLearningPlan = (plan) => {
-    setEditingPlanId(plan.id);
-    // setShowEditPlanModal(true); // if using modal
-  };
-
 
   return (
     <div className="min-h-screen bg-white text-gray-900 ml-64 px-6 py-10">
@@ -170,9 +142,9 @@ const ProfilePage = () => {
                 Edit Profile
               </button>
 
-              <div className="relative">
+              <div className="relative create-dropdown">
                 <button
-                  onClick={() => setShowDropdown(!showDropdown)}
+                  onClick={() => setShowDropdown((prev) => !prev)}
                   className="px-4 py-2 rounded text-white hover:opacity-90 transition flex items-center gap-2"
                   style={{ backgroundColor: "#A367B1" }}
                 >
@@ -190,7 +162,6 @@ const ProfilePage = () => {
                     >
                       Create Post
                     </button>
-
                     <button
                       onClick={() => {
                         setShowDropdown(false);
@@ -200,10 +171,10 @@ const ProfilePage = () => {
                     >
                       Create Learning Plan
                     </button>
-
                     <button
                       onClick={() => {
                         setShowDropdown(false);
+                        alert("Coming soon");
                       }}
                       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                     >
@@ -212,6 +183,9 @@ const ProfilePage = () => {
                   </div>
                 )}
               </div>
+
+
+
             </div>
           </div>
 
@@ -255,58 +229,30 @@ const ProfilePage = () => {
         </div>
       </div>
 
+      {/* Tabs Section */}
       <div className="mt-24">
-        {myPosts.length === 0 ? (
-          <div className="text-center text-gray-600">No posts yet. Start by creating one!</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {myPosts.map((post) => (
-              <div
-                key={post.id}
-                className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
-                onClick={() => navigate(`/posts/${post.id}`)}
-              >
-                {post.imageUrl && (
-                  <img
-                    src={`http://localhost:8080${post.imageUrl}`}
-                    alt={post.title}
-                    className="w-full h-40 object-cover rounded mb-4"
-                  />
-                )}
-                <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
-                <p className="text-gray-600 text-sm">
-                  {post.description ? post.description.substring(0, 80) + "..." : "No description"}
-                </p>
-                <div className="flex gap-2 mt-4">
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(post.id);
-                    }}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingPost(post.id);
-                      setShowEditModal(true);
-                    }}
-                  >
-                    Edit
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        <div className="flex justify-center mb-6 space-x-6 border-b pb-2">
+          <button
+            onClick={() => setCurrentTab("posts")}
+            className={`px-4 py-2 font-semibold ${currentTab === "posts" ? "border-b-4 border-purple-600 text-purple-700" : "text-gray-500"}`}
+          >
+            Posts
+          </button>
+          <button
+            onClick={() => setCurrentTab("learningPlans")}
+            className={`px-4 py-2 font-semibold ${currentTab === "learningPlans" ? "border-b-4 border-purple-600 text-purple-700" : "text-gray-500"}`}
+          >
+            Learning Plans
+          </button>
+          <button
+            onClick={() => setCurrentTab("learningProgress")}
+            className={`px-4 py-2 font-semibold ${currentTab === "learningProgress" ? "border-b-4 border-purple-600 text-purple-700" : "text-gray-500"}`}
+          >
+            Learning Progress
+          </button>
+        </div>
 
-      <div className="mt-24">
-        <h2 className="text-2xl font-bold mb-4">My Learning Plans</h2>
-        <MyLearningPlans />
+        {renderTabContent()}
       </div>
 
       {showPostModal && (
@@ -323,28 +269,6 @@ const ProfilePage = () => {
         </div>
       )}
 
-      {showEditProfileModal && (
-        <EditProfileModal
-          initialData={profile}
-          onClose={() => setShowEditProfileModal(false)}
-          refreshProfile={() => {
-            const fetchProfile = async () => {
-              try {
-                const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
-                  credentials: "include",
-                });
-                if (!res.ok) throw new Error("Failed to fetch updated profile");
-                const data = await res.json();
-                setProfile(data);
-              } catch (err) {
-                console.error(err.message);
-              }
-            };
-            fetchProfile();
-          }}
-        />
-      )}
-
       {showEditModal && (
         <EditPostModal
           postId={editingPostId}
@@ -353,23 +277,15 @@ const ProfilePage = () => {
         />
       )}
 
-      {/* {location.pathname === "/learning-plans/create" && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
-            <button
-              onClick={() => navigate(-1)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none"
-            >
-              ×
-            </button>
-            <LearningPlanCreate />
-          </div>
-        </div>
-      )} */}
-
+      {showEditProfileModal && (
+        <EditProfileModal
+          initialData={profile}
+          onClose={() => setShowEditProfileModal(false)}
+          refreshProfile={fetchProfile}
+        />
+      )}
+      
       {location.pathname === "/learning-plans/create" && <LearningPlanModal />}
-
-
 
     </div>
   );

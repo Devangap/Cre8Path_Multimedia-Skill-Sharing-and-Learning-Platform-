@@ -122,6 +122,8 @@ const MyLearningPlans = () => {
               ×
             </button>
             <h3 className="text-xl font-bold mb-4 text-purple-600">Edit Learning Plan</h3>
+
+            <label className="text-sm font-semibold mb-1 block">Title</label>
             <input
               type="text"
               name="title"
@@ -130,6 +132,8 @@ const MyLearningPlans = () => {
               placeholder="Title"
               className="w-full mb-2 p-2 border rounded"
             />
+
+            <label className="text-sm font-semibold mb-1 block">Objective</label>
             <textarea
               name="objective"
               value={editData.objective}
@@ -137,6 +141,8 @@ const MyLearningPlans = () => {
               placeholder="Objective"
               className="w-full mb-2 p-2 border rounded"
             />
+
+            <label className="text-sm font-semibold mb-1 block">Topics</label>
             <input
               type="text"
               name="topics"
@@ -145,6 +151,8 @@ const MyLearningPlans = () => {
               placeholder="Topics"
               className="w-full mb-2 p-2 border rounded"
             />
+
+            <label className="text-sm font-semibold mb-1 block">Estimated Duration</label>
             <input
               type="text"
               name="estimatedDuration"
@@ -153,6 +161,8 @@ const MyLearningPlans = () => {
               placeholder="Duration"
               className="w-full mb-2 p-2 border rounded"
             />
+
+            <label className="text-sm font-semibold mb-1 block">Resources</label>
             <input
               type="text"
               name="resources"
@@ -161,6 +171,8 @@ const MyLearningPlans = () => {
               placeholder="Resources"
               className="w-full mb-2 p-2 border rounded"
             />
+
+            <label className="text-sm font-semibold mb-1 block">Visibility</label>
             <select
               name="visibility"
               value={editData.visibility}
@@ -170,6 +182,7 @@ const MyLearningPlans = () => {
               <option value="Public">Public</option>
               <option value="Private">Private</option>
             </select>
+
             <button
               className="w-full text-white font-bold py-2 rounded hover:opacity-90"
               style={{ backgroundColor: "#A367B1" }}
@@ -177,10 +190,11 @@ const MyLearningPlans = () => {
             >
               Save Changes
             </button>
-
           </div>
         </div>
       )}
+
+
     </div>
   );
 };
