@@ -4,6 +4,7 @@ import PostUpload from "../../components/PostUpload";
 import { useNavigate } from "react-router-dom";
 import EditPostModal from "../EditPost";
 import EditProfileModal from "./EditProfileModal"; 
+import { FaTrashAlt, FaEdit } from "react-icons/fa";
 
 
 const ProfilePage = () => {
@@ -323,59 +324,75 @@ const fetchMyPosts = async () => {
         {myPosts.length === 0 ? (
           <div className="text-center text-gray-600">No posts yet. Start by creating one!</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {myPosts.map((post) => (
-              <div
-                key={post.id}
-                className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
-                onClick={() => navigate(`/posts/${post.id}`)}
-              >
-                {post.imageUrls && post.imageUrls.length > 0 && (
-                  <img
-                    src={`http://localhost:8080${post.imageUrls[0]}`}
-                    alt={post.title}
-                    className="w-full h-40 object-cover rounded mb-4"
-                  />
-                )}
-                <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
-                <p className="text-gray-600 text -sm">
-                  {post.description ? post.description?.substring(0, 80) + '...' : 'No description'}
-                </p>
-                <p className="text-sm text-gray-500">Category: {post.category}</p>
-                <p className="text-sm text-gray-500">Skill Level: {post.skillLevel}</p>
-                <p className="text-sm text-gray-500">
-                  Tags: {post.tags ? post.tags.join(', ') : 'None'}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Created: {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {post.isPublic ? 'Public' : 'Private'}
-                </p>
-                {/* Buttons */}
-                <div className="flex gap-2 mt-auto">
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex-1"
-                    onClick={(e) => {e.stopPropagation();
-                      handleDelete(post.id);}}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingPost(post.id); // Set the post ID to be edited
-                      setShowEditModal(true); // Open the edit modal
-                      //navigate(`/posts/${post.id}/edit`);
-                    }}
-                  >
-                    Edit
-                  </button>
-                 </div>
-              </div>
-            ))}
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  {myPosts.map((post) => (
+    <div
+      key={post.id}
+      className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 cursor-pointer flex flex-col justify-between"
+      onClick={() => navigate(`/posts/${post.id}`)}
+    >
+      {post.imageUrls && post.imageUrls.length > 0 && (
+        <img
+          src={`http://localhost:8080${post.imageUrls[0]}`}
+          alt={post.title}
+          className="w-full h-48 object-cover rounded-lg mb-4"
+        />
+      )}
+
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-2xl font-bold text-gray-800 w-2/3 truncate">{post.title}</h3>
+        <div className="flex flex-col items-end gap-1 w-1/3">
+  <span className="bg-violet-200 text-violet-800 px-3 py-1 text-xs rounded-full">
+    {post.category}
+  </span>
+  <span className="bg-violet-200 text-violet-800 px-3 py-1 text-xs rounded-full">
+    {post.skillLevel}
+  </span>
+</div>
+
+      </div>
+
+      <p className="text-gray-600 text-sm mb-4">
+        {post.description ? post.description.substring(0, 100) + "..." : "No description"}
+      </p>
+
+      <div className="flex justify-between items-end mt-auto">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 text-xs text-violet-700 font-semibold">
+          {post.tags?.length ? post.tags.map(tag => (
+            <span key={tag}>#{tag}</span>
+          )) : <span>#NoTags</span>}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3 text-lg">
+          <button
+            title="Edit Post"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditingPost(post.id);
+              setShowEditModal(true);
+            }}
+            className="text-blue-600 hover:text-blue-800 transition"
+          >
+            <FaEdit />
+          </button>
+          <button
+            title="Delete Post"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(post.id);
+            }}
+            className="text-red-600 hover:text-red-800 transition"
+          >
+            <FaTrashAlt />
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
         )}
       </div>
 
