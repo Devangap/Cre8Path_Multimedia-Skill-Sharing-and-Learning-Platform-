@@ -51,9 +51,9 @@ public class Profile {
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followers;
 
-    // 📝 Add this: Cascade delete on posts
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts;
+//    // 📝 Add this: Cascade delete on posts
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Post> posts;
 
 }
 
