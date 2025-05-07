@@ -31,7 +31,7 @@ const Home = ({ setUserEmail }) => {
           navigate("/questionnaire");
         } else {
           localStorage.setItem("questionnaireCompleted", "true");
-          navigate("/feed"); // ✅ Redirect to the feed page
+          navigate("/feed"); 
         }
         
       })
