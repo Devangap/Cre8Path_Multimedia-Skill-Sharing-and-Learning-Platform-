@@ -106,8 +106,12 @@ const Home = ({ setUserEmail }) => {
       {/* Main Section - After Hero */}
       <div className="flex flex-col md:flex-row justify-center items-start  px-6 md:px-20 min-h-[55vh] bg-gray-50 "
       style={{
-        background: 'linear-gradient(to right, #A367B1, #C5DFF8, #AEE2FF, #5D3587)',
-      }}>
+        background: 'linear-gradient(to right, #2E1A47, #4B2E6F, #6B2F8D, #8F4CC4, #A98DFF, #D8B4FE)',
+      }}
+      
+      
+      
+      >
         
         {/* Left side - Learn. Share. Grow. */}
          <div className="flex flex-col items-start w-full md:w-1/2 mb-10 mt-20 md:mb-0 pl-10 md:pl-24 space-y-8">
