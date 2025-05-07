@@ -330,9 +330,9 @@ const fetchMyPosts = async () => {
                 className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
                 onClick={() => navigate(`/posts/${post.id}`)}
               >
-                {post.imageUrl && (
+                {post.imageUrls && post.imageUrls.length > 0 && (
                   <img
-                    src={`http://localhost:8080${post.imageUrl}`}
+                    src={`http://localhost:8080${post.imageUrls[0]}`}
                     alt={post.title}
                     className="w-full h-40 object-cover rounded mb-4"
                   />
