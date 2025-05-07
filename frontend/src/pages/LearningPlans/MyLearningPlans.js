@@ -91,12 +91,12 @@ const MyLearningPlans = () => {
 
               <div className="mt-4">
                 <button
-                  className="w-full text-white px-4 py-2 rounded transition hover:opacity-90"
-                  style={{ backgroundColor: "#A367B1" }}
                   onClick={() => navigate(`/learning-plans/${plan.id}`)}
+                  className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-500 to-purple-700 text-white font-semibold shadow-md hover:shadow-lg hover:brightness-110 transition-all duration-300"
                 >
                   Learn More
                 </button>
+
               </div>
             </div>
           ))}
