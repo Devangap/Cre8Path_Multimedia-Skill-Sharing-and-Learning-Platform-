@@ -325,60 +325,74 @@ const fetchMyPosts = async () => {
           <div className="text-center text-gray-600">No posts yet. Start by creating one!</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {myPosts.map((post) => (
-            <div
-              key={post.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 cursor-pointer flex flex-col"
-              onClick={() => navigate(`/posts/${post.id}`)}
-            >
-              {post.imageUrls && post.imageUrls.length > 0 && (
-                <img
-                  src={`http://localhost:8080${post.imageUrls[0]}`}
-                  alt={post.title}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-              )}
-        
-              <h3 className="text-xl font-bold text-gray-800 mb-2 truncate">{post.title}</h3>
-        
-              <p className="text-gray-600 text-sm mb-1">
-                {post.description ? post.description.substring(0, 100) + "..." : "No description"}
-              </p>
-        
-              <div className="text-sm text-gray-500 space-y-1 mt-2">
-                <p><strong>Category:</strong> {post.category}</p>
-                <p><strong>Skill:</strong> {post.skillLevel}</p>
-                <p><strong>Tags:</strong> {post.tags?.join(", ") || "None"}</p>
-                <p><strong>Created:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
-                <p><strong>Visibility:</strong> {post.isPublic ? "Public" : "Private"}</p>
-              </div>
-        
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  title="Edit Post"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditingPost(post.id);
-                    setShowEditModal(true);
-                  }}
-                  className="text-blue-600 hover:text-blue-800 transition text-lg"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  title="Delete Post"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(post.id);
-                  }}
-                  className="text-red-600 hover:text-red-800 transition text-lg"
-                >
-                  <FaTrashAlt />
-                </button>
-              </div>
-            </div>
-          ))}
+  {myPosts.map((post) => (
+    <div
+      key={post.id}
+      className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 cursor-pointer flex flex-col justify-between"
+      onClick={() => navigate(`/posts/${post.id}`)}
+    >
+      {post.imageUrls && post.imageUrls.length > 0 && (
+        <img
+          src={`http://localhost:8080${post.imageUrls[0]}`}
+          alt={post.title}
+          className="w-full h-48 object-cover rounded-lg mb-4"
+        />
+      )}
+
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-2xl font-bold text-gray-800 w-2/3 truncate">{post.title}</h3>
+        <div className="flex flex-col items-end gap-1 w-1/3">
+  <span className="bg-violet-200 text-violet-800 px-3 py-1 text-xs rounded-full">
+    {post.category}
+  </span>
+  <span className="bg-violet-200 text-violet-800 px-3 py-1 text-xs rounded-full">
+    {post.skillLevel}
+  </span>
+</div>
+
+      </div>
+
+      <p className="text-gray-600 text-sm mb-4">
+        {post.description ? post.description.substring(0, 100) + "..." : "No description"}
+      </p>
+
+      <div className="flex justify-between items-end mt-auto">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 text-xs text-violet-700 font-semibold">
+          {post.tags?.length ? post.tags.map(tag => (
+            <span key={tag}>#{tag}</span>
+          )) : <span>#NoTags</span>}
         </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3 text-lg">
+          <button
+            title="Edit Post"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditingPost(post.id);
+              setShowEditModal(true);
+            }}
+            className="text-blue-600 hover:text-blue-800 transition"
+          >
+            <FaEdit />
+          </button>
+          <button
+            title="Delete Post"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(post.id);
+            }}
+            className="text-red-600 hover:text-red-800 transition"
+          >
+            <FaTrashAlt />
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
         )}
       </div>
 
