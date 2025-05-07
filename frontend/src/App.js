@@ -125,8 +125,10 @@ const AppContent = () => {
   };
 
   // Hide navbar on homepage
-  const hideNavbarOnPaths = ['/'];
-  const shouldShowNavbar = !hideNavbarOnPaths.includes(location.pathname);
+  // Hide navbar on homepage and questionnaire
+const hideNavbarOnPaths = ['/', '/questionnaire'];
+const shouldShowNavbar = !hideNavbarOnPaths.includes(location.pathname);
+
 
   return (
     <>
