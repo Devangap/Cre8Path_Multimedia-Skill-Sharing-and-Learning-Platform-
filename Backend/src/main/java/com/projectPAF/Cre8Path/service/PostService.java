@@ -2,8 +2,10 @@ package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.Post;
 import com.projectPAF.Cre8Path.model.PostCreateDTO;
+import com.projectPAF.Cre8Path.model.Profile;
 import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.PostRepository;
+import com.projectPAF.Cre8Path.repository.ProfileRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.model.PostResponseDTO;
 
@@ -32,6 +34,8 @@ public class PostService {
     private static final String UPLOAD_DIR = "uploads/";
 
     private final PostRepository postRepository;
+    private final ProfileRepository profileRepository;
+
     private final UserRepository userRepository;
 
     public ResponseEntity<Map<String, String>> createPost(PostCreateDTO postDTO, OAuth2User oauth2User, Principal principal) {
@@ -242,4 +246,31 @@ public class PostService {
             if (file.exists()) file.delete();
         }
     }
+
+//    public ResponseEntity<?> getPostsByUsername(String username) {
+//        List<Post> posts = postRepository.findByUserUsername(username);
+//        return ResponseEntity.ok(posts);
+//    }
+
+    public ResponseEntity<?> getPostsByUsername(String username) {
+        // Lookup the user's email from Profile table using username
+        Optional<Profile> profileOpt = profileRepository.findByUsername(username);
+        if (profileOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        String email = profileOpt.get().getUser().getEmail();
+        List<Post> posts = postRepository.findByUserEmail(email);
+        return ResponseEntity.ok(posts);
+    }
+
+
+
+
+
+
+
+
+
 }
+

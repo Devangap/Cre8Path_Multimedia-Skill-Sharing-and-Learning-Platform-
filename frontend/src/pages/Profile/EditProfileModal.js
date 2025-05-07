@@ -31,16 +31,28 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
     if (!confirmed) return;
   
     try {
+      // 1. Delete profile
       const res = await fetch('http://localhost:8080/api/profile/delete', {
         method: 'DELETE',
-        headers: { "Content-Type": "application/json" }, 
-        credentials: 'include',  
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
       });
   
       const data = await res.json();
   
       if (res.ok) {
-        alert(data.message || "Profile deleted successfully!");
+        alert(data.message || "✅ Profile deleted successfully!");
+  
+        // 2. Call logout endpoint
+        await fetch("http://localhost:8080/api/v1/demo/logout", {
+          credentials: "include",
+        });
+  
+        // 3. Clear frontend storage
+        localStorage.removeItem("userIdentifier");
+        sessionStorage.removeItem("userIdentifier");
+  
+        // 4. Redirect to home
         window.location.href = "/";
       } else {
         alert(data.error || "Something went wrong");
