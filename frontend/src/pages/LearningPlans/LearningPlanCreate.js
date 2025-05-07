@@ -66,15 +66,25 @@ const LearningPlanCreate = () => {
         onChange={handleChange}
       />
 
-      <input
-        type="text"
+      <select
         name="topics"
-        placeholder="Topics (comma-separated)"
         required
         className="w-full p-2 border rounded"
         value={formData.topics}
         onChange={handleChange}
-      />
+      >
+        <option value="">Select a Topic</option>
+        <option value="Photography">Photography</option>
+        <option value="Videography">Videography</option>
+        <option value="Animation">Animation</option>
+        <option value="Graphic Designing">Graphic Designing</option>
+        <option value="Music Production">Music Production</option>
+        <option value="UI/UX">UI/UX</option>
+        <option value="Content Creation">Content Creation</option>
+        <option value="Advertising">Advertising</option>
+        <option value="Marketing">Marketing</option>
+      </select>
+
 
       <input
         type="text"

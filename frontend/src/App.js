@@ -21,7 +21,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import LearningpList from './pages/Learningp/LearningpList';
 import LearningpCreate from './pages/Learningp/LearningpCreate';
 import LearningpEdit from './pages/Learningp/LearningpEdit';
-
+import LearningPlanDetails from './pages/LearningPlans/LearningPlanDetails';
 
 // LearningPlan
 import LearningPlanCreate from "./pages/LearningPlans/LearningPlanCreate";
@@ -79,7 +79,7 @@ function App() {
   <Route path="/profile/:username" element={<ProfilePage />} />
   <Route path="/learning-plans/create" element={<ProfilePage />} />
   <Route path="/my-learning-plans" element={<MyLearningPlans />} />
-
+  <Route path="/learning-plans/:id" element={<LearningPlanDetails />} />
 
 </Routes>
     </Router>
