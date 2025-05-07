@@ -95,9 +95,13 @@ const PostUpload = ({ userEmail, setShowPostModal, refreshPosts }) => {
             className="w-full p-2 border rounded"
           >
             <option value="Photography">Photography</option>
-            <option value="Art">Art</option>
+            <option value="Videography">Videography</option>
             <option value="Music">Music</option>
-            <option value="Writing">Writing</option>
+            <option value="Graphic Designing">Graphic Designing</option>
+            <option value="UI/UX">UI/UX</option>
+            <option value="Content Creation">Content Creation</option>
+            <option value="Advertising">Advertising</option>
+            <option value="Marketing">Marketing</option>
           </select>
         </div>
 
