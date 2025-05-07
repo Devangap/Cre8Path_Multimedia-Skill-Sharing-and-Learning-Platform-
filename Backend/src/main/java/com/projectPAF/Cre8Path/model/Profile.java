@@ -44,5 +44,16 @@ public class Profile {
 
     @Column(name = "joined_at")
     private LocalDateTime joinedAt = LocalDateTime.now();
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> following;
+
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followers;
+
+    // 📝 Add this: Cascade delete on posts
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
+
 }
 
