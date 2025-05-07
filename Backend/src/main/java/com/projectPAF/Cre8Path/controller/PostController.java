@@ -51,11 +51,11 @@ public class PostController {
         return postService.getMyPosts(oauth2User, principal);
     }
 
-    @GetMapping("/feed")
-    public ResponseEntity<List<PostResponseDTO>> getFeed() {
-        logger.info("Received request to fetch feed.");
-        return postService.getFeed();
-    }
+//    @GetMapping("/feed")
+//    public ResponseEntity<List<PostResponseDTO>> getFeed() {
+//        logger.info("Received request to fetch feed.");
+//        return postService.getFeed();
+//    }
 
 
     @GetMapping("/{id}")
@@ -88,13 +88,14 @@ public class PostController {
     public ResponseEntity<?> getPostsByUsername(@PathVariable String username) {
         return postService.getPostsByUsername(username);
     }
-//    @GetMapping("/feed")
-//    public ResponseEntity<List<Post>> getFeed(
-//            @AuthenticationPrincipal OAuth2User oauth2User,
-//            Principal principal
-//    ) {
-//        return postService.getFollowedUsersPosts(oauth2User, principal);
-//    }
+    @GetMapping("/feed")
+public ResponseEntity<List<PostResponseDTO>> getFeed(
+        @AuthenticationPrincipal OAuth2User oauth2User,
+        Principal principal
+) {
+    logger.info("Received request to fetch feed for followed users only.");
+    return postService.getFeed(oauth2User, principal);
+}
 
 
 

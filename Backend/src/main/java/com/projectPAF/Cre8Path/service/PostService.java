@@ -1,13 +1,10 @@
 package com.projectPAF.Cre8Path.service;
 
-import com.projectPAF.Cre8Path.model.Post;
-import com.projectPAF.Cre8Path.model.PostCreateDTO;
-import com.projectPAF.Cre8Path.model.Profile;
-import com.projectPAF.Cre8Path.model.User;
+import com.projectPAF.Cre8Path.model.*;
+import com.projectPAF.Cre8Path.repository.FollowRepository;
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.ProfileRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
-import com.projectPAF.Cre8Path.model.PostResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +23,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +33,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
+    private final FollowRepository followRepository;
 
     private final UserRepository userRepository;
 
@@ -263,6 +262,31 @@ public class PostService {
         List<Post> posts = postRepository.findByUserEmail(email);
         return ResponseEntity.ok(posts);
     }
+    public ResponseEntity<List<PostResponseDTO>> getFeed(OAuth2User oauth2User, Principal principal) {
+        String email = oauth2User != null ? oauth2User.getAttribute("email") : principal.getName();
+        User user = userRepository.findByEmail(email).orElseThrow();
+        Profile profile = profileRepository.findByUser(user).orElseThrow();
+
+        // Fetch users the current user is following
+        List<Follow> followRecords = followRepository.findByFollower(profile);
+        List<User> followedUsers = followRecords.stream()
+                .map(follow -> follow.getFollowing().getUser())
+                .toList();
+
+        // ✅ Get posts from followed users only (excluding current user's own posts)
+        List<Post> feedPosts = postRepository.findByUserInOrderByCreatedAtDesc(followedUsers);
+
+        // Convert to DTOs using constructor
+        List<PostResponseDTO> response = feedPosts.stream()
+                .map(PostResponseDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 
 
 
