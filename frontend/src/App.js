@@ -21,7 +21,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import LearningpList from './pages/Learningp/LearningpList';
 import LearningpCreate from './pages/Learningp/LearningpCreate';
 import LearningpEdit from './pages/Learningp/LearningpEdit';
-
+import NotificationsList from './pages/Notifications/Notification.js';
 
 // LearningPlan
 import LearningPlanCreate from "./pages/LearningPlans/LearningPlanCreate";
@@ -73,6 +73,7 @@ function App() {
   <Route path="/learningp" element={<LearningpList />} />
   <Route path="/learningp/create" element={<LearningpCreate />} />
   <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
+  <Route path="/notifications" element={<NotificationsList />} />
 
   {/* LearningPlans CREATE */}
   {/* <Route path="/learning-plans/create" element={<LearningPlanCreate />} /> */}

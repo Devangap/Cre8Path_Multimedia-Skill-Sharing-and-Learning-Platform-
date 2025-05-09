@@ -28,6 +28,9 @@ public class Learningp {
     @Column(name = "UserId",nullable = true)
     private Long user_id;
 
+    @Column(name = "topic",nullable = true)
+    private String topic;
+
     @Column(name = "CourseId",nullable = true)
     private Long course_id;
 
