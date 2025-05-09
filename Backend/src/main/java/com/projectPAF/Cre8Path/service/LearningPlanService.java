@@ -29,36 +29,26 @@ public class LearningPlanService {
         return learningPlan.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-//    public ResponseEntity<LearningPlan> updateLearningPlan(Long id, LearningPlan updatedLearningPlan) {
-//        if (repository.existsById(id)) {
-//            updatedLearningPlan.setId(id);
-//            return ResponseEntity.ok(repository.save(updatedLearningPlan));
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
-
     public ResponseEntity<LearningPlan> updateLearningPlan(Long id, LearningPlan updatedLearningPlan) {
         Optional<LearningPlan> existingPlanOptional = repository.findById(id);
 
         if (existingPlanOptional.isPresent()) {
             LearningPlan existingPlan = existingPlanOptional.get();
 
-            // Update only the editable fields
-            existingPlan.setTopic(updatedLearningPlan.getTopic());
+            // Update the new fields
+            existingPlan.setTitle(updatedLearningPlan.getTitle());
+            existingPlan.setObjective(updatedLearningPlan.getObjective());
+            existingPlan.setTopics(updatedLearningPlan.getTopics());
+            existingPlan.setEstimatedDuration(updatedLearningPlan.getEstimatedDuration());
             existingPlan.setResources(updatedLearningPlan.getResources());
-            existingPlan.setTimeline(updatedLearningPlan.getTimeline());
-            existingPlan.setStartDate(updatedLearningPlan.getStartDate());
-            existingPlan.setEndDate(updatedLearningPlan.getEndDate());
-            existingPlan.setStatus(updatedLearningPlan.getStatus());
-            // ⚡ DO NOT TOUCH 'user' or 'createdAt'
+            existingPlan.setVisibility(updatedLearningPlan.getVisibility());
+            // Do not change user or createdAt
 
             return ResponseEntity.ok(repository.save(existingPlan));
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-
 
     public ResponseEntity<Void> deleteLearningPlan(Long id) {
         if (repository.existsById(id)) {
@@ -72,5 +62,4 @@ public class LearningPlanService {
     public List<LearningPlan> getLearningPlansByUser(User user) {
         return repository.findByUser(user);
     }
-
 }
