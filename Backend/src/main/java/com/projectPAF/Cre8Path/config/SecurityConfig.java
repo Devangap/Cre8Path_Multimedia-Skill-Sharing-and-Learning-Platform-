@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/demo/signup", "/api/v1/demo/signin", "/logout").permitAll()
+                        .requestMatchers("/api/v1/demo/signup", "/api/v1/demo/signin", "/logout","/api/v1/admin/**" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
