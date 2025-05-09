@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface FollowRepository extends JpaRepository<Follow, Long> {
     boolean existsByFollowerAndFollowing(Profile follower, Profile following);
     Optional<Follow> findByFollowerAndFollowing(Profile follower, Profile following);
+    List<Follow> findByFollower(Profile follower);
+
     long countByFollowing(Profile profile);
     long countByFollower(Profile profile);
     @Query("SELECT f.following.username FROM Follow f WHERE f.follower.username = :username")

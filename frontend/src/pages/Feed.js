@@ -43,13 +43,14 @@ const Feed = () => {
               className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition cursor-pointer"
               onClick={() => navigate(`/posts/${post.id}`)}
             >
-              {post.imageUrl && (
-                <img
-                  src={`http://localhost:8080${post.imageUrl}`}
-                  alt={post.title}
-                  className="w-full h-40 object-cover rounded mb-4"
-                />
-              )}
+              {post.imageUrls && post.imageUrls.length > 0 && (
+  <img
+    src={`http://localhost:8080${post.imageUrls[0]}`}
+    alt={post.title}
+    className="w-full h-40 object-cover rounded mb-4"
+  />
+)}
+
               <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
               <p className="text-sm text-gray-600">
                 {post.description ? post.description.substring(0, 80) + '...' : 'No description'}
