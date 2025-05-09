@@ -1,11 +1,17 @@
 package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.*;
+
+import com.projectPAF.Cre8Path.repository.*;
+import org.hibernate.Hibernate;
+
 import com.projectPAF.Cre8Path.repository.FollowRepository;
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.ProfileRepository;
 import com.projectPAF.Cre8Path.repository.UserRepository;
 
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,23 +32,26 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
     private static final String UPLOAD_DIR = "uploads/";
 
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
+
     private final FollowRepository followRepository;
 
+
     private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     public ResponseEntity<Map<String, String>> createPost(PostCreateDTO postDTO, OAuth2User oauth2User, Principal principal) {
         Map<String, String> response = new HashMap<>();
         String email = extractEmail(oauth2User, principal);
 
-        if (email == null) {
-            response.put("error", "User not authenticated.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
+        if (email == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             User newUser = new User();
@@ -52,10 +59,8 @@ public class PostService {
             return userRepository.save(newUser);
         });
 
-        if (postDTO.getTitle() == null || postDTO.getTitle().trim().isEmpty()) {
-            response.put("error", "Title is required.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        if (postDTO.getTitle() == null || postDTO.getTitle().trim().isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("error", "Title is required."));
 
         List<String> imageUrls = new ArrayList<>();
         try {
@@ -66,8 +71,7 @@ public class PostService {
                 }
             }
         } catch (IOException e) {
-            response.put("error", "Image upload failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.internalServerError().body(Map.of("error", "Image upload failed: " + e.getMessage()));
         }
 
         String videoUrl = null;
@@ -76,8 +80,7 @@ public class PostService {
                 videoUrl = saveFile(postDTO.getVideo());
             }
         } catch (IOException e) {
-            response.put("error", "Video upload failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.internalServerError().body(Map.of("error", "Video upload failed: " + e.getMessage()));
         }
 
         Post post = new Post();
@@ -93,21 +96,14 @@ public class PostService {
         post.setVideoUrl(videoUrl);
 
         postRepository.save(post);
-        response.put("message", "Post created successfully.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("message", "Post created successfully."));
     }
 
     public ResponseEntity<?> getMyPosts(OAuth2User oauth2User, Principal principal) {
         String email = extractEmail(oauth2User, principal);
-        if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
-        }
-
+        if (email == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
         User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
-        }
-
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
         List<Post> posts = postRepository.findByUser(user);
         List<PostResponseDTO> dtoList = posts.stream().map(PostResponseDTO::new).toList();
         return ResponseEntity.ok(dtoList);
@@ -121,64 +117,29 @@ public class PostService {
 
     public ResponseEntity<?> getPostById(Long id) {
         Post post = postRepository.findById(id).orElse(null);
-        if (post == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found."));
-        }
+        if (post == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found."));
         return ResponseEntity.ok(new PostResponseDTO(post));
     }
 
     public ResponseEntity<Map<String, String>> deletePost(Long id, OAuth2User oauth2User, Principal principal) {
         String email = extractEmail(oauth2User, principal);
         Map<String, String> response = new HashMap<>();
-
-        if (email == null) {
-            response.put("error", "User not authenticated.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-
+        if (email == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
         Post post = postRepository.findById(id).orElse(null);
-        if (post == null) {
-            response.put("error", "Post not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        if (!post.getUser().getEmail().equals(email)) {
-            response.put("error", "Unauthorized.");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
-
-        if (post.getImageUrlList() != null) {
-            post.getImageUrlList().forEach(this::deleteFile);
-        }
-
-        if (post.getVideoUrl() != null) {
-            deleteFile(post.getVideoUrl());
-        }
-
+        if (post == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found."));
+        if (!post.getUser().getEmail().equals(email)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Unauthorized."));
+        if (post.getImageUrlList() != null) post.getImageUrlList().forEach(this::deleteFile);
+        if (post.getVideoUrl() != null) deleteFile(post.getVideoUrl());
         postRepository.delete(post);
-        response.put("message", "Post deleted successfully.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("message", "Post deleted successfully."));
     }
 
     public ResponseEntity<Map<String, String>> updatePost(Long id, PostCreateDTO postDTO, OAuth2User oauth2User, Principal principal) {
         String email = extractEmail(oauth2User, principal);
-        Map<String, String> response = new HashMap<>();
-
-        if (email == null) {
-            response.put("error", "User not authenticated.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-
+        if (email == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
         Post post = postRepository.findById(id).orElse(null);
-        if (post == null) {
-            response.put("error", "Post not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        if (!post.getUser().getEmail().equals(email)) {
-            response.put("error", "Unauthorized.");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
+        if (post == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found."));
+        if (!post.getUser().getEmail().equals(email)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Unauthorized."));
 
         if (postDTO.getTitle() != null) post.setTitle(postDTO.getTitle());
         if (postDTO.getDescription() != null) post.setDescription(postDTO.getDescription());
@@ -194,8 +155,7 @@ public class PostService {
                 try {
                     newImageUrls.add(saveFile(image));
                 } catch (IOException e) {
-                    response.put("error", "Image upload failed: " + e.getMessage());
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+                    return ResponseEntity.internalServerError().body(Map.of("error", "Image upload failed: " + e.getMessage()));
                 }
             }
             post.setImageUrls(newImageUrls);
@@ -208,13 +168,11 @@ public class PostService {
                 post.setVideoUrl(videoUrl);
             }
         } catch (IOException e) {
-            response.put("error", "Video upload failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.internalServerError().body(Map.of("error", "Video upload failed: " + e.getMessage()));
         }
 
         postRepository.save(post);
-        response.put("message", "Post updated successfully.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("message", "Post updated successfully."));
     }
 
     private String extractEmail(OAuth2User oauth2User, Principal principal) {
@@ -226,16 +184,13 @@ public class PostService {
     private String saveFile(MultipartFile file) throws IOException {
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists()) uploadDir.mkdirs();
-
         String extension = Optional.ofNullable(file.getOriginalFilename())
                 .filter(f -> f.contains("."))
                 .map(f -> f.substring(f.lastIndexOf(".")))
                 .orElse("");
-
         String filename = UUID.randomUUID() + extension;
         Path path = Paths.get(UPLOAD_DIR, filename);
         Files.write(path, file.getBytes());
-
         return "/uploads/" + filename;
     }
 
@@ -246,18 +201,9 @@ public class PostService {
         }
     }
 
-//    public ResponseEntity<?> getPostsByUsername(String username) {
-//        List<Post> posts = postRepository.findByUserUsername(username);
-//        return ResponseEntity.ok(posts);
-//    }
-
     public ResponseEntity<?> getPostsByUsername(String username) {
-        // Lookup the user's email from Profile table using username
         Optional<Profile> profileOpt = profileRepository.findByUsername(username);
-        if (profileOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
-
+        if (profileOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         String email = profileOpt.get().getUser().getEmail();
         List<Post> posts = postRepository.findByUserEmail(email);
         return ResponseEntity.ok(posts);
@@ -288,13 +234,132 @@ public class PostService {
 
 
 
+    public ResponseEntity<?> toggleLike(Long postId, Principal principal) {
+        String email = principal.getName();
+        Post post = postRepository.findById(postId).orElse(null);
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (post == null || user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User or Post not found"));
+
+        if (likeRepository.existsByPostAndUser(post, user)) {
+            likeRepository.deleteByPostAndUser(post, user);
+            return ResponseEntity.ok(Map.of("message", "Unliked"));
+        } else {
+            Like like = new Like();
+            like.setPost(post);
+            like.setUser(user);
+            likeRepository.save(like);
+            return ResponseEntity.ok(Map.of("message", "Liked"));
+        }
+    }
+
+    public ResponseEntity<Long> getLikeCount(Long postId) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) return ResponseEntity.ok(0L);
+        return ResponseEntity.ok(likeRepository.countByPost(post));
+    }
+
+    public ResponseEntity<List<CommentResponseDTO>> getComments(Long postId) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) return ResponseEntity.ok(List.of());
+
+        List<Comment> comments = commentRepository.findByPostOrderByCreatedAtAsc(post);
+
+        List<Comment> topLevelComments = comments.stream()
+                .filter(c -> c.getParent() == null)
+                .toList();
+
+        topLevelComments.forEach(this::initializeRepliesRecursively);
+
+        List<CommentResponseDTO> dtoList = topLevelComments.stream()
+                .map(c -> {
+                    String displayName = profileRepository.findByUser(c.getUser())
+                            .map(Profile::getUsername)
+                            .orElseGet(() -> c.getUser().getEmail() != null ? c.getUser().getEmail() : "User-" + c.getUser().getOauthId());
+                    return new CommentResponseDTO(c, displayName);
+                })
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
+    }
 
 
+    private void initializeRepliesRecursively(Comment comment) {
+        Hibernate.initialize(comment.getReplies());
+        if (comment.getReplies() != null) {
+            for (Comment reply : comment.getReplies()) {
+                initializeRepliesRecursively(reply);
+            }
+        }
+    }
 
+
+    @Transactional
+    public ResponseEntity<?> addComment(Long postId, String content, Principal principal) {
+        String email = principal.getName();
+        Post post = postRepository.findById(postId).orElse(null);
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (post == null || user == null || content == null || content.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid comment"));
+        }
+
+        Comment comment = new Comment();
+        comment.setContent(content.trim());
+        comment.setPost(post);
+        comment.setUser(user);
+        comment.setCreatedAt(LocalDateTime.now());
+        // ❌ Do not set parent here
+        commentRepository.save(comment);
+
+        return ResponseEntity.ok(Map.of("message", "Comment added"));
+    }
+
+    public ResponseEntity<?> replyToComment(Long postId, Long commentId, String content, Principal principal) {
+        String email = principal.getName();
+        Post post = postRepository.findById(postId).orElse(null);
+        User user = userRepository.findByEmail(email).orElse(null);
+        Comment parentComment = commentRepository.findById(commentId).orElse(null);
+
+        if (post == null || user == null || parentComment == null || content == null || content.trim().isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid reply"));
+
+        Comment reply = new Comment();
+        reply.setPost(post);
+        reply.setUser(user);
+        reply.setContent(content.trim());
+        reply.setParent(parentComment);
+        reply.setCreatedAt(LocalDateTime.now());
+
+        commentRepository.save(reply);
+
+        return ResponseEntity.ok(Map.of("message", "Reply added"));
+    }
+
+    public ResponseEntity<?> deleteComment(Long postId, Long commentId, Principal principal) {
+        String requesterEmail = principal.getName();
+
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+        if (comment == null || !comment.getPost().getId().equals(postId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Comment not found"));
+        }
+
+        Post post = comment.getPost();
+        String postOwnerEmail = post.getUser().getEmail();
+
+        // Allow if the requester is the comment owner OR the post owner
+        if (!comment.getUser().getEmail().equals(requesterEmail) &&
+                !postOwnerEmail.equals(requesterEmail)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not allowed"));
+        }
+
+        commentRepository.delete(comment);
+        return ResponseEntity.ok(Map.of("message", "Comment deleted"));
+    }
 
 
 
 
 
 }
-
