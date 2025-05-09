@@ -161,14 +161,14 @@ const Sidebar = ({ userEmail }) => {
         {/* Links */}
         <nav className="flex flex-col space-y-4">
           <a href="/" className="text-gray-700 hover:text-blue-600">Home</a>
-          <a href="/about" className="text-gray-700 hover:text-blue-600">About</a>
-          <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a>
+          {/* <a href="/about" className="text-gray-700 hover:text-blue-600">About</a> */}
+          {/* <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a> */}
 
-          {userEmail && (
+          {/* {userEmail && (
             <>
               <a href="/upload" className="text-gray-700 hover:text-blue-600">Upload</a>
             </>
-          )}
+          )} */}
           {userData && (
             <a href={`/profile/${userData.username}`} className="text-gray-700 hover:text-blue-600">
               Profile
