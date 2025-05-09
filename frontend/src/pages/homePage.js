@@ -31,7 +31,9 @@ const Home = ({ setUserEmail }) => {
           navigate("/questionnaire");
         } else {
           localStorage.setItem("questionnaireCompleted", "true");
+          navigate("/feed"); 
         }
+        
       })
       .catch(() => {
         setUserMessage("Please sign in to access full features.");
@@ -102,15 +104,22 @@ const Home = ({ setUserEmail }) => {
       
 
       {/* Main Section - After Hero */}
-      <div className="flex flex-col md:flex-row justify-center items-start  px-6 md:px-20 min-h-[55vh] bg-gray-50">
+      <div className="flex flex-col md:flex-row justify-center items-start  px-6 md:px-20 min-h-[55vh] bg-gray-50 "
+      style={{
+        background: 'linear-gradient(to right, #2E1A47, #4B2E6F, #6B2F8D, #8F4CC4, #A98DFF, #D8B4FE)',
+      }}
+      
+      
+      
+      >
         
         {/* Left side - Learn. Share. Grow. */}
-          <div className="flex flex-col items-start w-full md:w-1/2 mb-10 mt-20 md:mb-0 pl-10 md:pl-24 space-y-8">
+         <div className="flex flex-col items-start w-full md:w-1/2 mb-10 mt-20 md:mb-0 pl-10 md:pl-24 space-y-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0, duration: 0.6 }}
-              className="text-7xl font-extrabold text-gray-800 ml-0"
+              className="text-7xl font-extrabold text-white  ml-0"
             >
               Learn.
             </motion.h2>
@@ -118,7 +127,7 @@ const Home = ({ setUserEmail }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-7xl font-extrabold text-gray-800 ml-40"
+              className="text-7xl font-extrabold text-white ml-40"
             >
               Share.
             </motion.h2>
@@ -126,15 +135,17 @@ const Home = ({ setUserEmail }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="text-7xl font-extrabold text-gray-800 ml-80"
+              className="text-7xl font-extrabold text-white ml-80"
             >
               Grow.
             </motion.h2>
           </div>
 
 
+
+
         {/* Right side - Login Section */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mt-10">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mt-20 ml-20">
   <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
     Sign In or Get Started
   </h2>
@@ -182,7 +193,7 @@ const Home = ({ setUserEmail }) => {
       onClick={() => setShowEmailSignup(true)}
       className="flex items-center justify-center w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
     >
-      <span className="text-violet-600 font-semibold">Continue with Email</span>
+      <span className="text-violet-800 font-semibold">Continue with Email</span>
     </button>
   </div>
 
@@ -193,15 +204,22 @@ const Home = ({ setUserEmail }) => {
   </p>
 </div>
 </div>
-      <div className="w-full flex flex-col items-center justify-center text-center bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 px-4 py-32">
-  <h1 className="text-5xl font-bold text-white mb-6">
-    Unlock Your Creativity with Cre8Path
-  </h1>
-  <p className="text-lg text-white mb-10 max-w-2xl">
-    Learn new skills, share your passion, and grow your talent with the community.
-  </p>
+<div className="w-full flex flex-col items-center justify-center text-center px-4 py-32 bg-gray-50">
+  <div className="border-2 border-violet-300 rounded-3xl px-20 py-16 shadow-lg max-w-5xl w-full">
+    <h1 className="text-5xl font-bold text-gray-700 mb-6">
+      Unlock Your Creativity with Cre8Path
+    </h1>
+    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+      Learn new skills, share your passion, and grow your talent with the community.
+    </p>
+  </div>
 </div>
-<div className="w-full flex flex-col md:flex-row justify-center items-center gap-2 bg-gray-50 px-6 md:px-20 py-20 ml-52">
+
+
+
+
+
+<div className="w-full flex flex-col md:flex-row justify-center items-center gap-2 bg-gray-50 px-6 md:px-20 py-20 ">
   {/* Text Content */}
   <div className="flex flex-col items-start md:w-1/2 mb-10 md:mb-0">
     <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
@@ -213,19 +231,20 @@ const Home = ({ setUserEmail }) => {
     <p className="text-lg text-gray-600 mb-8">
       On Cre8Path, multimedia enthusiasts learn from each other, collaborate globally, and transform passions into thriving careers.
     </p>
-    <button className="px-6 py-3 bg-violet-600 text-white rounded hover:bg-violet-700 transition">
+    <button className="px-6 py-3 bg-violet-800 text-white rounded hover:bg-violet-700 transition">
       Discover Skill Communities →
     </button>
   </div>
 
   {/* Image */}
   <div className="md:w-1/2 flex justify-center">
-    <img
-      src="/images/collab.png"
-      alt="Creative Collaboration"
-      className="rounded-2xl shadow-xl w-80 h-auto object-cover"
-    />
-  </div>
+  <img
+    src="/images/collab.png"
+    alt="Creative Collaboration"
+    className="rounded-2xl shadow-xl w-[28rem] max-w-full h-auto object-cover"
+  />
+</div>
+
 </div>
 
 
@@ -302,6 +321,18 @@ const Home = ({ setUserEmail }) => {
           </div>
         </div>
       )}
+      {/* Footer */}
+{/* <footer className="bg-gray-800 text-white text-center py-6 mt-auto">
+  <div className="container mx-auto px-4">
+    <p className="text-sm">&copy; {new Date().getFullYear()} Cre8Path. All rights reserved.</p>
+    <div className="mt-2 flex justify-center gap-4 text-gray-400 text-sm">
+      <a href="#" className="hover:text-white">Privacy Policy</a>
+      <a href="#" className="hover:text-white">Terms of Service</a>
+      <a href="#" className="hover:text-white">Contact</a>
+    </div>
+  </div>
+</footer> */}
+
     </>
   );
 };

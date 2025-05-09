@@ -69,7 +69,13 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/demo/signup", "/api/v1/demo/signin", "/logout", "/api/learningp/**").permitAll()
+                        .requestMatchers("/api/v1/demo/signup", "/api/v1/demo/signin", "/logout","/api/v1/posts/*/likes",          // ✅ Valid - matches one path segment
+                                "/api/v1/posts/*/comments",       // ✅ Valid
+                                "/api/v1/posts/*",                // ✅ Valid
+                                "/api/v1/posts/feed",
+                                "/api/v1/posts/user/*",
+                                "/api/learningp/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

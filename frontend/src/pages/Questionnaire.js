@@ -96,51 +96,54 @@ const Questionnaire = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="bg-white border shadow-md p-6 rounded-lg max-w-md w-full">
-        <h2 className="text-lg font-semibold mb-4 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-violet-100 to-white px-6 py-12">
+      <div className="bg-white shadow-xl border border-violet-200 rounded-2xl p-10 w-full max-w-4xl transition-all duration-300">
+        <h2 className="text-2xl font-bold mb-8 text-center text-violet-900">
           {currentQuestion.question}
         </h2>
-
-        <div className="space-y-2">
-        {currentQuestion.options.map((option) => {
-  const isSelected =
-    currentQuestion.id === 1
-      ? (answers[currentQuestion.id] || []).includes(option)
-      : answers[currentQuestion.id] === option;
-
-  return (
-    <label
-      key={option}
-      className={`block px-4 py-2 border rounded cursor-pointer ${
-        isSelected ? "bg-violet-600 text-white" : "hover:bg-violet-100"
-      }`}
-    >
-      <input
-        type={currentQuestion.id === 1 ? "checkbox" : "radio"}
-        name={`question-${currentQuestion.id}`}
-        value={option}
-        checked={isSelected}
-        onChange={() => handleOptionSelect(option)}
-        className="hidden"
-      />
-      {option}
-    </label>
-  );
-})}
-
+  
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {currentQuestion.options.map((option) => {
+            const isSelected =
+              currentQuestion.id === 1
+                ? (answers[currentQuestion.id] || []).includes(option)
+                : answers[currentQuestion.id] === option;
+  
+            return (
+              <label
+              key={option}
+              className={`block text-center px-4 py-3 border-2 rounded-lg cursor-pointer font-medium transition ${
+                isSelected
+                  ? "bg-violet-200 text-[#4B2E6F] border-[#4B2E6F]"
+                  : "border-gray-300 hover:bg-violet-50"
+              }`}
+            >
+            
+                <input
+                  type={currentQuestion.id === 1 ? "checkbox" : "radio"}
+                  name={`question-${currentQuestion.id}`}
+                  value={option}
+                  checked={isSelected}
+                  onChange={() => handleOptionSelect(option)}
+                  className="hidden"
+                />
+                {option}
+              </label>
+            );
+          })}
         </div>
-
+  
         <button
           onClick={handleNext}
-          disabled={!answers[currentQuestion.id]}
-          className="mt-6 bg-violet-600 text-white px-6 py-2 rounded hover:bg-violet-700 disabled:opacity-50 w-full"
+          disabled={!answers[currentQuestion.id] || (Array.isArray(answers[currentQuestion.id]) && answers[currentQuestion.id].length === 0)}
+          className="mt-10 bg-[#A367B1] text-white py-3 px-8 rounded-lg font-semibold hover:bg-violet-800 transition disabled:opacity-50 block mx-auto"
         >
           {currentQuestionIndex === questions.length - 1 ? "Finish" : "Next"}
         </button>
       </div>
     </div>
   );
+  
 };
 
 export default Questionnaire;
