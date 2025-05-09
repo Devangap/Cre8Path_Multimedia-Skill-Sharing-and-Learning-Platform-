@@ -32,33 +32,33 @@ const ProfilePage = () => {
 
 
 
-  const fetchProfile = async () => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      setProfile(data);
-    } catch (err) {
-      console.error(err.message);
-    }
-  };
+  // const fetchProfile = async () => {
+  //   try {
+  //     const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
+  //       credentials: "include",
+  //     });
+  //     const data = await res.json();
+  //     setProfile(data);
+  //   } catch (err) {
+  //     console.error(err.message);
+  //   }
+  // };
 
 
-  const fetchMyPosts = async () => {
-    try {
-      const res = await fetch("http://localhost:8080/api/v1/posts/my-posts", {
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMyPosts(data);
-      }
-    } catch (err) {
-      console.error(err.message);
-    }
-  };
+  // const fetchMyPosts = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:8080/api/v1/posts/my-posts", {
+  //       headers: { "Content-Type": "application/json" },
+  //       credentials: "include",
+  //     });
+  //     if (res.ok) {
+  //       const data = await res.json();
+  //       setMyPosts(data);
+  //     }
+  //   } catch (err) {
+  //     console.error(err.message);
+  //   }
+  // };
 
   useEffect(() => {
     fetchProfile();
@@ -77,6 +77,28 @@ const ProfilePage = () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+  const handleDelete = async (postId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+  
+    try {
+      const res = await fetch(`http://localhost:8080/api/v1/posts/${postId}/delete`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete post.");
+  
+      alert("Post deleted successfully.");
+  
+     
+      setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
   
 
   const renderTabContent = () => {
