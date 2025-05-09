@@ -30,37 +30,58 @@ const Feed = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-8 py-10 ml-64">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Your Feed</h1>
-
+    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-gray-100">
       {posts.length === 0 ? (
-        <p className="text-gray-600">You’re not following anyone or they haven’t posted yet.</p>
+        <div className="text-center mt-20 text-gray-600">
+          You’re not following anyone or they haven’t posted yet.
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {posts.map((post) => (
+        posts.map((post) => (
+          <div
+            key={post.id}
+            className="h-[92vh] snap-start flex flex-col justify-start items-center pt-6"
+          >
+            <p className="text-md font-semibold text-gray-800 w-full text-left mb-1 max-w-2xl px-4">
+              Posted by{" "}
+              <span
+                className="text-violet-600 hover:underline cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/profile/${post.authorUsername}`);
+                }}
+              >
+                @{post.authorUsername || 'unknown'}
+              </span>
+            </p>
+
             <div
-              key={post.id}
-              className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition cursor-pointer"
+              className="bg-white rounded-lg shadow-md w-full max-w-2xl p-4 hover:shadow-lg transition cursor-pointer"
               onClick={() => navigate(`/posts/${post.id}`)}
             >
               {post.imageUrls && post.imageUrls.length > 0 && (
-  <img
-    src={`http://localhost:8080${post.imageUrls[0]}`}
-    alt={post.title}
-    className="w-full h-40 object-cover rounded mb-4"
-  />
-)}
+                <img
+                  src={`http://localhost:8080${post.imageUrls[0]}`}
+                  alt={post.title}
+                  className="w-full h-96 object-cover rounded mb-4"
+                />
+              )}
 
-              <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
-              <p className="text-sm text-gray-600">
-                {post.description ? post.description.substring(0, 80) + '...' : 'No description'}
+              <h3 className="text-xl font-bold mb-2">{post.title}</h3>
+              <p className="text-gray-700 mb-2">
+                {post.description ? post.description : 'No description'}
               </p>
-              <p className="text-sm text-gray-500 mt-2">
-                {post.isPublic ? 'Public' : 'Private'} • {new Date(post.createdAt).toLocaleDateString()}
+
+              <p className="text-sm text-gray-500">
+                {post.isPublic ? 'Public' : 'Private'} •{' '}
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+
+              <p className="text-sm text-gray-700 mt-2">
+                ❤️ {post.likeCount || 0} Likes • 💬 {post.commentCount || 0} Comments
               </p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))
       )}
     </div>
   );
