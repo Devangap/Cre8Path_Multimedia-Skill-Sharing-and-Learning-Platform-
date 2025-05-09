@@ -1,8 +1,15 @@
 package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.*;
+
 import com.projectPAF.Cre8Path.repository.*;
 import org.hibernate.Hibernate;
+
+import com.projectPAF.Cre8Path.repository.FollowRepository;
+import com.projectPAF.Cre8Path.repository.PostRepository;
+import com.projectPAF.Cre8Path.repository.ProfileRepository;
+import com.projectPAF.Cre8Path.repository.UserRepository;
+
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +27,7 @@ import java.nio.file.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +38,10 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
+
+    private final FollowRepository followRepository;
+
+
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
@@ -196,6 +208,31 @@ public class PostService {
         List<Post> posts = postRepository.findByUserEmail(email);
         return ResponseEntity.ok(posts);
     }
+    public ResponseEntity<List<PostResponseDTO>> getFeed(OAuth2User oauth2User, Principal principal) {
+        String email = oauth2User != null ? oauth2User.getAttribute("email") : principal.getName();
+        User user = userRepository.findByEmail(email).orElseThrow();
+        Profile profile = profileRepository.findByUser(user).orElseThrow();
+
+        // Fetch users the current user is following
+        List<Follow> followRecords = followRepository.findByFollower(profile);
+        List<User> followedUsers = followRecords.stream()
+                .map(follow -> follow.getFollowing().getUser())
+                .toList();
+
+        // ✅ Get posts from followed users only (excluding current user's own posts)
+        List<Post> feedPosts = postRepository.findByUserInOrderByCreatedAtDesc(followedUsers);
+
+        // Convert to DTOs using constructor
+        List<PostResponseDTO> response = feedPosts.stream()
+                .map(PostResponseDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 
     public ResponseEntity<?> toggleLike(Long postId, Principal principal) {
         String email = principal.getName();
