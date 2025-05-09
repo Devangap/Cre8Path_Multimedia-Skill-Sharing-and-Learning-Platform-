@@ -311,48 +311,48 @@ const fetchMyPosts = async () => {
 
 
        {isOwnProfile && (
-              <div className="relative">
-
-                <button
-                  onClick={() => setShowDropdown((prev) => !prev)}
-                  className="px-4 py-2 rounded text-white hover:opacity-90 transition flex items-center gap-2"
-                  style={{ backgroundColor: "#A367B1" }}
-                >
-                  <span className="text-xl">+</span> Create
-                </button>
-
-                {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white border rounded shadow-lg z-10">
-                    <button
-                      onClick={() => {
-                        setShowDropdown(false);
-                        setShowPostModal(true);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
-                      Create Post
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowDropdown(false);
-                        navigate("/learning-plans/create");
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
-                      Create Learning Plan
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowDropdown(false);
-                        alert("Coming soon");
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
-                      Create Learning Progress Template
-                    </button>
-                  </div>
-                )}
-              </div>
+              <div className="relative create-dropdown">
+              <button
+                onClick={() => setShowDropdown((prev) => !prev)}
+                className="px-4 py-2 rounded text-white hover:opacity-90 transition flex items-center gap-2"
+                style={{ backgroundColor: "#A367B1" }}
+              >
+                <span className="text-xl">+</span> Create
+              </button>
+            
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border rounded shadow-lg z-10">
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      setShowPostModal(true);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Create Post
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      navigate("/learning-plans/create");
+                    }}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Create Learning Plan
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      alert("Coming soon");
+                    }}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Create Learning Progress Template
+                  </button>
+                </div>
+              )}
+            </div>
+            
 
               )}
 
