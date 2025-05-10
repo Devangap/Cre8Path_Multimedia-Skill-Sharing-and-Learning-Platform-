@@ -17,9 +17,8 @@ public class LearningpService {
     private LearningpRepo repository;
 
     public Learningp createLearningp(Learningp learningp) {
-    return repository.save(learningp); // Saving with new fields title, description, and category
+        return repository.save(learningp); // Save the learning progress with the authenticated user
     }
-
 
     public List<Learningp> getAllLearningp() {
         return repository.findAll();
@@ -31,8 +30,9 @@ public class LearningpService {
     }
 
     public ResponseEntity<Learningp> updateLearningp(Long id, Learningp updatedLearningp) {
-        if (repository.existsById(id)) {
-            updatedLearningp.setId(id);
+        Optional<Learningp> existingPlan = repository.findById(id);
+        if (existingPlan.isPresent()) {
+            updatedLearningp.setId(id); // Ensure the ID is set correctly
             return ResponseEntity.ok(repository.save(updatedLearningp));
         } else {
             return ResponseEntity.notFound().build();
@@ -49,6 +49,6 @@ public class LearningpService {
     }
 
     public List<Learningp> getLearningpByUser(User user) {
-        return repository.findByUser(user);
+        return repository.findByUser(user); // Fetch learning progress related to the user
     }
 }

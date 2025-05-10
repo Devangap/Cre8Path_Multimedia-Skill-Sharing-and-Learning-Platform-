@@ -2,6 +2,8 @@ package com.projectPAF.Cre8Path.model;
 
 import java.sql.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -47,5 +49,6 @@ public class Learningp {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = true)
+    @JsonIgnore
     private User user;
 }

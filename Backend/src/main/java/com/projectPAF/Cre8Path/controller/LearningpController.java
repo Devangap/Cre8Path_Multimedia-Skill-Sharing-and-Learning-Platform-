@@ -2,6 +2,7 @@ package com.projectPAF.Cre8Path.controller;
 
 import com.projectPAF.Cre8Path.model.Learningp;
 import com.projectPAF.Cre8Path.model.User;
+import com.projectPAF.Cre8Path.repository.LearningpRepo;
 import com.projectPAF.Cre8Path.repository.UserRepository;
 import com.projectPAF.Cre8Path.service.LearningpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,14 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/learningp")
 public class LearningpController {
+
+    @Autowired
+    private LearningpRepo repository;
 
     @Autowired
     private LearningpService service;
@@ -41,6 +46,7 @@ public class LearningpController {
 
         String email = null;
 
+        // Retrieve user email based on authentication method
         if (principal instanceof OAuth2User oauthUser) {
             email = oauthUser.getAttribute("email");
         } else if (principal instanceof org.springframework.security.core.userdetails.User user) {
@@ -60,7 +66,7 @@ public class LearningpController {
             userRepository.save(user);
         }
 
-        learningp.setUser(user);
+        learningp.setUser(user); // Set the authenticated user
 
         try {
             Learningp saved = service.createLearningp(learningp); // Ensure the service layer is updated for new fields
@@ -71,8 +77,6 @@ public class LearningpController {
         }
     }
 
-
-
     @GetMapping
     public List<Learningp> getAllLearningp() {
         return service.getAllLearningp();
@@ -80,28 +84,48 @@ public class LearningpController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Learningp> getLearningpById(@PathVariable Long id) {
-        return service.getLearningpById(id);
+        Optional<Learningp> learningp = repository.findById(id);
+        return learningp.map(ResponseEntity::ok)
+                        .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user-learningp")
     public ResponseEntity<List<Learningp>> getLearningpByUser(Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String email = principal.getName();
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(service.getLearningpByUser(user));
+                                  .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(service.getLearningpByUser(user)); // Fetch only the learning progress data of the logged-in user
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Learningp> updateLearningp(@PathVariable Long id, @RequestBody Learningp learningp) {
-        return service.updateLearningp(id, learningp);
+        Optional<Learningp> existingPlan = repository.findById(id);
+        if (existingPlan.isPresent()) {
+            Learningp existingLearningp = existingPlan.get();
+
+            // Preserve the user field from the existing record
+            learningp.setUser(existingLearningp.getUser());
+            learningp.setId(id); // Ensure the ID is set correctly
+
+            Learningp updatedLearningp = repository.save(learningp);
+            return ResponseEntity.ok(updatedLearningp);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLearningp(@PathVariable Long id) {
-        return service.deleteLearningp(id);
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
