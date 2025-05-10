@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/demo")
@@ -91,32 +92,33 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
     @PostMapping("/complete-questionnaire")
-
     @Transactional
     public ResponseEntity<?> saveQuestionnaire(@RequestBody QuestionnaireResponse dto, Principal principal) {
-        User user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        Optional<User> userOpt = userRepository.findByEmailOrOauthId(principal.getName(), principal.getName());
 
-        // Save questionnaire response
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+
+        User user = userOpt.get();
+
         QuestionnaireResponse response = new QuestionnaireResponse();
         response.setUser(user);
-        response.setInterests(String.join(",", dto.getInterests()));
+        response.setInterests(dto.getInterests() != null ? String.join(",", dto.getInterests()) : "");
         response.setSkillLevel(dto.getSkillLevel());
         response.setContentType(dto.getContentType());
         response.setTimeCommitment(dto.getTimeCommitment());
+
         questionnaireResponseRepository.save(response);
 
-        // Update user's firstTimeLogin flag
-        user.setFirstTimeLogin(false); // This will now be tracked in the transaction
-        // No need to explicitly call userRepository.save(user)
+        user.setFirstTimeLogin(false);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("message", "Questionnaire completed successfully");
         responseMap.put("firstTimeLogin", false);
 
         return ResponseEntity.ok(responseMap);
-
     }
-
 
 
 
