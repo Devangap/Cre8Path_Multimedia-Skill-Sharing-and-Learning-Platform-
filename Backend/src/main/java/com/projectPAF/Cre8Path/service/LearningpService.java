@@ -1,6 +1,7 @@
 package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.Learningp;
+import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.LearningpRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ public class LearningpService {
     private LearningpRepo repository;
 
     public Learningp createLearningp(Learningp learningp) {
+        // User is already set by the controller
         return repository.save(learningp);
     }
 
@@ -25,7 +27,7 @@ public class LearningpService {
 
     public ResponseEntity<Learningp> getLearningpById(Long id) {
         Optional<Learningp> learningp = repository.findById(id);
-        return learningp.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return learningp.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     public ResponseEntity<Learningp> updateLearningp(Long id, Learningp updatedLearningp) {
@@ -44,5 +46,9 @@ public class LearningpService {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    public List<Learningp> getLearningpByUser(User user) {
+        return repository.findByUser(user);
     }
 }

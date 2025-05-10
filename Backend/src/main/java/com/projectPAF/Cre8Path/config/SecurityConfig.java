@@ -69,15 +69,12 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/demo/signup", "/api/v1/demo/signin", "/logout","/api/v1/posts/*/likes",          // ✅ Valid - matches one path segment
-                                "/api/v1/posts/*/comments",       // ✅ Valid
-                                "/api/v1/posts/*",                // ✅ Valid
-                                "/api/v1/posts/feed",
-                                "/api/v1/posts/user/*",
-                                "/api/learningp/**").permitAll()
-
-                        .anyRequest().authenticated()
-                )
+                .requestMatchers("/api/v1/demo/signup", "/api/v1/demo/signin", "/logout", 
+                     "/api/v1/posts/*/likes", "/api/v1/posts/*/comments", 
+                     "/api/v1/posts/*", "/api/v1/posts/feed", "/api/v1/posts/user/*",
+                     "/api/learningp/**").permitAll()  // Allow access to learningp
+                .anyRequest().authenticated() // Other requests require authentication
+)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)

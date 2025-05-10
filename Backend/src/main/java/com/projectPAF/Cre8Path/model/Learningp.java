@@ -8,11 +8,14 @@ import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Column;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 @Entity
 @Table(name = "learningp")
 @AllArgsConstructor
@@ -25,22 +28,19 @@ public class Learningp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "UserId",nullable = true)
-    private Long user_id;
-
-    @Column(name = "topic",nullable = true)
-    private String topic;
-
-    @Column(name = "CourseId",nullable = true)
+    @Column(name = "course_id", nullable = true)
     private Long course_id;
 
-    @Column(name = "StartDate")
+    @Column(name = "start_date")
     private Date start_date;
-    
-    @Column(name = "EndDate")
+
+    @Column(name = "end_date")
     private Date end_date;
-    
-    @Column(name = "ProgressStatus")
+
+    @Column(name = "progress_status")
     private String status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user;
 }
