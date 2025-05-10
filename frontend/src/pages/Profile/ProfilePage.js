@@ -1,5 +1,4 @@
-// [No changes at the import level]
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import PostUpload from "../../components/PostUpload";
 import EditPostModal from "../EditPost";
@@ -9,6 +8,7 @@ import LearningPlanModal from "../LearningPlans/LearningPlanModal";
 
 import EditProfileModal from "./EditProfileModal"; 
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import LearningpList from '../Learningp/LearningpList'; // Import LearningpList
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -133,11 +133,7 @@ const ProfilePage = () => {
       case "learningPlans":
         return <MyLearningPlans />;
       case "learningProgress":
-        return (
-          <div className="text-center text-gray-500 mt-4">
-            No learning progress yet.
-          </div>
-        );
+        return <LearningpList />; // Render the LearningpList component
       default:
         return null;
     }
@@ -223,7 +219,6 @@ const ProfilePage = () => {
       fetchMyPosts();
     }
   }, [currentUser, username]);
-  
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -333,7 +328,7 @@ const ProfilePage = () => {
                       <button
                         onClick={() => {
                           setShowDropdown(false);
-                          alert("Coming soon");
+                          navigate("/learningp/create");
                         }}
                         className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                       >
@@ -399,31 +394,19 @@ const ProfilePage = () => {
         <div className="flex justify-center mb-6 space-x-6 border-b pb-2">
           <button
             onClick={() => setCurrentTab("posts")}
-            className={`px-4 py-2 font-semibold ${
-              currentTab === "posts"
-                ? "border-b-4 border-purple-600 text-purple-700"
-                : "text-gray-500"
-            }`}
+            className={`px-4 py-2 font-semibold ${currentTab === "posts" ? "border-b-4 border-purple-600 text-purple-700" : "text-gray-500"}`}
           >
             Posts
           </button>
           <button
             onClick={() => setCurrentTab("learningPlans")}
-            className={`px-4 py-2 font-semibold ${
-              currentTab === "learningPlans"
-                ? "border-b-4 border-purple-600 text-purple-700"
-                : "text-gray-500"
-            }`}
+            className={`px-4 py-2 font-semibold ${currentTab === "learningPlans" ? "border-b-4 border-purple-600 text-purple-700" : "text-gray-500"}`}
           >
             Learning Plans
           </button>
           <button
             onClick={() => setCurrentTab("learningProgress")}
-            className={`px-4 py-2 font-semibold ${
-              currentTab === "learningProgress"
-                ? "border-b-4 border-purple-600 text-purple-700"
-                : "text-gray-500"
-            }`}
+            className={`px-4 py-2 font-semibold ${currentTab === "learningProgress" ? "border-b-4 border-purple-600 text-purple-700" : "text-gray-500"}`}
           >
             Learning Progress
           </button>
@@ -467,7 +450,6 @@ const ProfilePage = () => {
           </div>
         </div>
       )}
-
 
       {showEditProfileModal && (
         <EditProfileModal

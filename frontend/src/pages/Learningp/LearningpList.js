@@ -86,12 +86,12 @@ const LearningpList = () => {
     <div>
     <Toaster position="top-right" />
     <div className="max-w-7xl mx-auto mr-7 p-6">
-      <h2 className="text-2xl font-bold mb-6 text-center">My Learning Progress</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ml-20">
+      {/* <h2 className="text-2xl font-bold mb-6 text-center">My Learning Progress</h2> */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ml-20 ">
         {learningPlans.map((plan) => {
           const daysLeft = calculateDaysLeft(plan.start_date, plan.end_date);
           return (
-            <div key={plan.id} className="bg-white rounded-lg shadow-md p-4 transition hover:shadow-lg w-72">
+            <div key={plan.id} className="bg-white rounded-lg shadow-md p-4 transition hover:shadow-lg w-72 border-2">
               <h3 className="text-lg font-semibold mb-2 text-purple-700">{plan.title}</h3>
               <p className="text-gray-600 mb-2">{plan.description}</p>
               <p className="text-sm text-gray-500 mb-1">Category: {plan.category}</p>
