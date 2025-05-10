@@ -57,6 +57,7 @@ const PostDetails = () => {
         const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
         const data = await res.json();
         setPostOwnerEmail(data.postOwnerEmail);
+<<<<<<< Updated upstream
         setComments(Array.isArray(data.comments) ? data.comments : []);
       } catch (err) {
         console.error("Failed to fetch comments:", err.message);
