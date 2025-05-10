@@ -57,16 +57,10 @@ const PostDetails = () => {
         const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
         const data = await res.json();
         setPostOwnerEmail(data.postOwnerEmail);
-<<<<<<< Updated upstream
         setComments(Array.isArray(data.comments) ? data.comments : []);
       } catch (err) {
         console.error("Failed to fetch comments:", err.message);
         setComments([]);
-=======
-        setComments(data.comments);
-      } catch (err) {
-        console.error("Failed to fetch comments:", err.message);
->>>>>>> Stashed changes
       }
     };
 
@@ -75,7 +69,6 @@ const PostDetails = () => {
     fetchComments();
   }, [id]);
 
-<<<<<<< Updated upstream
   const refreshComments = async () => {
     const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
     const data = await res.json();
@@ -83,8 +76,6 @@ const PostDetails = () => {
     setComments(Array.isArray(data.comments) ? data.comments : []);
   };
 
-=======
->>>>>>> Stashed changes
   const toggleLike = async () => {
     await fetch(`${BASE_URL}/api/v1/posts/${id}/like`, {
       method: 'POST',
@@ -136,7 +127,6 @@ const PostDetails = () => {
     }
   };
 
-<<<<<<< Updated upstream
   const renderComments = (commentList, level = 0) => {
     if (!Array.isArray(commentList)) return null; // ✅ Defensive check
     return commentList.map((c) => (
@@ -174,51 +164,6 @@ const PostDetails = () => {
     ));
   };
 
-=======
-  const refreshComments = async () => {
-    const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
-    const data = await res.json();
-    setPostOwnerEmail(data.postOwnerEmail);
-    setComments(data.comments);
-  };
-
-  const renderComments = (commentList, level = 0) => {
-    return commentList.map((c) => (
-      <div key={c.id} className={`ml-${level * 4} mt-2`}>
-        <div className="bg-gray-100 p-2 rounded text-sm flex justify-between items-start">
-          <div>
-            <strong className="text-violet-700">{c.authorDisplayName}</strong>: {c.content}
-            <div className="text-xs text-gray-500">{new Date(c.createdAt).toLocaleString()}</div>
-          </div>
-          {(c.authorEmail === currentUserEmail || postOwnerEmail === currentUserEmail) && (
-            <button
-              onClick={() => handleDeleteComment(c.id)}
-              className="text-red-600 text-xs hover:underline ml-2"
-            >
-              Delete
-            </button>
-          )}
-        </div>
-        <div className="flex mt-1">
-          <input
-            value={replyInputs[c.id] || ''}
-            onChange={(e) => setReplyInputs({ ...replyInputs, [c.id]: e.target.value })}
-            placeholder="Write a reply..."
-            className="flex-1 p-1 border rounded text-xs"
-          />
-          <button
-            onClick={() => submitReply(c.id)}
-            className="ml-2 bg-violet-500 text-white text-xs px-2 py-1 rounded"
-          >
-            Reply
-          </button>
-        </div>
-        {c.replies?.length > 0 && renderComments(c.replies, level + 1)}
-      </div>
-    ));
-  };
-
->>>>>>> Stashed changes
   const handlePrev = () => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? post.imageUrls.length - 1 : prev - 1
