@@ -98,29 +98,32 @@ const ProfilePage = () => {
                       )}
                     </div>
 
-                    <div className="flex gap-3 text-lg">
-                      <button
-                        title="Edit Post"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingPost(post.id);
-                          setShowEditModal(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 transition"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        title="Delete Post"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(post.id);
-                        }}
-                        className="text-red-600 hover:text-red-800 transition"
-                      >
-                        <FaTrashAlt />
-                      </button>
-                    </div>
+                    {currentUser?.username === post.authorUsername && (
+  <div className="flex gap-3 text-lg">
+    <button
+      title="Edit Post"
+      onClick={(e) => {
+        e.stopPropagation();
+        setEditingPost(post.id);
+        setShowEditModal(true);
+      }}
+      className="text-blue-600 hover:text-blue-800 transition"
+    >
+      <FaEdit />
+    </button>
+    <button
+      title="Delete Post"
+      onClick={(e) => {
+        e.stopPropagation();
+        handleDelete(post.id);
+      }}
+      className="text-red-600 hover:text-red-800 transition"
+    >
+      <FaTrashAlt />
+    </button>
+  </div>
+)}
+
                   </div>
                 </div>
               ))
