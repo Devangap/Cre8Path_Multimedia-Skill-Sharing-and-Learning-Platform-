@@ -1,6 +1,9 @@
 package com.projectPAF.Cre8Path.controller;
 
 import com.projectPAF.Cre8Path.model.Post;
+
+import com.projectPAF.Cre8Path.model.PostResponseDTO;
+
 import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.ProfileRepository;
@@ -28,21 +31,21 @@ public class PostRecommendationController {
     private final QuestionnaireResponseRepository questionnaireRepository;
 
     @GetMapping("/post")
-    public ResponseEntity<List<Post>> getRecommendedPosts(Principal principal) {
+
+    public ResponseEntity<List<PostResponseDTO>> getRecommendedPosts(Principal principal) {
         User user = userRepository.findByEmail(principal.getName()).orElseThrow();
 
-        // 🔧 Use arrays to allow mutation inside lambdas
+        // 🔧 Mutable containers for lambda scope
         String[] skills = {""};
         String[] interests = {""};
 
-        // 🔹 Get skills from Profile
         profileRepository.findByUser(user).ifPresent(profile -> {
             if (profile.getSkills() != null) {
                 skills[0] = profile.getSkills();
             }
         });
 
-        // 🔹 Get interests from QuestionnaireResponse
+
         questionnaireRepository.findByUser(user).ifPresent(response -> {
             if (response.getInterests() != null) {
                 interests[0] = response.getInterests();
@@ -54,6 +57,17 @@ public class PostRecommendationController {
         );
 
         List<Post> posts = postRepository.findAllById(recommendedIds);
-        return ResponseEntity.ok(posts);
+
+
+        // ✅ Convert to DTO with resolved usernames
+        List<PostResponseDTO> dtos = posts.stream()
+                .map(post -> {
+                    String username = PostResponseDTO.resolveUsername(post, profileRepository);
+                    return new PostResponseDTO(post, username);
+                })
+                .toList();
+
+        return ResponseEntity.ok(dtos);
     }
+
 }

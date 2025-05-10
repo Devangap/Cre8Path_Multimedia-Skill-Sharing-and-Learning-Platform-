@@ -19,13 +19,15 @@ const PostLogin = ({ setUserEmail }) => {
         localStorage.setItem("userIdentifier", display);
         setUserEmail(display);
 
-        if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
-          localStorage.setItem("questionnaireCompleted", "false");
-          navigate("/questionnaire"); // ✅ Go to questionnaire if first time
-        } else {
-          localStorage.setItem("questionnaireCompleted", "true");
-          navigate("/"); // ✅ Else go to home
-        }
+       // ... existing code ...
+if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
+  localStorage.setItem("questionnaireCompleted", "false");
+  navigate("/questionnaire");
+} else {
+  localStorage.setItem("questionnaireCompleted", "true");
+  navigate("/feed"); // Changed from "/" to "/feed"
+}
+// ... existing code ...
       })
       .catch((err) => {
         console.error("OAuth post-login error:", err);
