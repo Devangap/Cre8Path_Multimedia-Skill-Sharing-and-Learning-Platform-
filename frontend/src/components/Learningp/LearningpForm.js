@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const LearningpForm = ({ initialData = {}, onSubmit }) => {
   const [formData, setFormData] = useState({
+    user_id: initialData.user_id || '',
     course_id: initialData.course_id || '',
     start_date: initialData.start_date || '',
     end_date: initialData.end_date || '',
@@ -109,6 +110,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
                     name="start_date"
                     id="start_date"
                     value={formData.start_date}
+                    min={formData.start_date}
                     onChange={handleChange}
                     className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -146,9 +148,10 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
                     className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   >
                     <option value="">Select Status</option>
-                    <option value="enroll">Enroll</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="Just Started">Just Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Incomplete">Incomplete</option>
+                    <option value="Completed">Completed</option>
                   </select>
                 </div>
               </div>
@@ -159,7 +162,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           <button
             type="button"
             className="rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            onClick={() => console.log('Cancel')}
+            onClick={() => window.location.href = '/learningp'}
           >
             Cancel
           </button>

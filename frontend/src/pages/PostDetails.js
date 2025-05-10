@@ -27,7 +27,6 @@ const PostDetails = () => {
         console.error("Failed to fetch current user", err.message);
       }
     };
-
     fetchCurrentUser();
   }, []);
 
@@ -58,9 +57,11 @@ const PostDetails = () => {
         const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
         const data = await res.json();
         setPostOwnerEmail(data.postOwnerEmail);
+
         setComments(data.comments);
       } catch (err) {
         console.error("Failed to fetch comments:", err.message);
+
       }
     };
 
@@ -68,6 +69,7 @@ const PostDetails = () => {
     fetchLikes();
     fetchComments();
   }, [id]);
+
 
   const toggleLike = async () => {
     await fetch(`${BASE_URL}/api/v1/posts/${id}/like`, {
@@ -128,6 +130,7 @@ const PostDetails = () => {
   };
 
   const renderComments = (commentList, level = 0) => {
+
     return commentList.map((c) => (
       <div key={c.id} className={`ml-${level * 4} mt-2`}>
         <div className="bg-gray-100 p-2 rounded text-sm flex justify-between items-start">
@@ -186,35 +189,15 @@ const PostDetails = () => {
       <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
         <div className="md:w-1/2 bg-black relative h-[35rem]">
           {hasVideo ? (
-            <video
-              src={`${BASE_URL}${post.videoUrl}`}
-              controls
-              className="w-full h-full object-cover"
-            />
+            <video src={`${BASE_URL}${post.videoUrl}`} controls className="w-full h-full object-cover" />
           ) : hasImages ? (
             <div className="w-full h-full relative">
-              <img
-                src={`${BASE_URL}${post.imageUrls[currentImageIndex]}`}
-                alt={`Image ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover"
-              />
+              <img src={`${BASE_URL}${post.imageUrls[currentImageIndex]}`} alt={`Image ${currentImageIndex + 1}`} className="w-full h-full object-cover" />
               {post.imageUrls.length > 1 && (
                 <>
-                  <button
-                    onClick={handlePrev}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow"
-                  >
-                    <FaArrowLeft />
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow"
-                  >
-                    <FaArrowRight />
-                  </button>
-                  <div className="absolute bottom-2 right-4 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                    {currentImageIndex + 1} / {post.imageUrls.length}
-                  </div>
+                  <button onClick={handlePrev} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow"><FaArrowLeft /></button>
+                  <button onClick={handleNext} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow"><FaArrowRight /></button>
+                  <div className="absolute bottom-2 right-4 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">{currentImageIndex + 1} / {post.imageUrls.length}</div>
                 </>
               )}
             </div>
@@ -234,23 +217,16 @@ const PostDetails = () => {
             <div className="text-gray-700 mb-2">
               <strong>Tags:</strong>{" "}
               <span className="flex flex-wrap gap-2 mt-1">
-                {post.tags?.length
-                  ? post.tags.map(tag => (
-                      <span key={tag} className="bg-violet-100 text-violet-800 px-2 py-1 text-xs rounded-full">#{tag}</span>
-                    ))
-                  : <span className="text-sm text-gray-500">None</span>}
+                {post.tags?.length ? post.tags.map(tag => (
+                  <span key={tag} className="bg-violet-100 text-violet-800 px-2 py-1 text-xs rounded-full">#{tag}</span>
+                )) : <span className="text-sm text-gray-500">None</span>}
               </span>
             </div>
             <p className="text-sm text-gray-500 mt-2">Posted on: {new Date(post.createdAt).toLocaleString()}</p>
             <p className="text-sm text-gray-500">By: {post.userEmail}</p>
 
             <div className="flex gap-4 mt-4 items-center">
-              <button
-                onClick={toggleLike}
-                className="bg-pink-100 text-pink-600 px-3 py-1 rounded-full hover:bg-pink-200"
-              >
-                ❤️ Like
-              </button>
+              <button onClick={toggleLike} className="bg-pink-100 text-pink-600 px-3 py-1 rounded-full hover:bg-pink-200">❤️ Like</button>
               <span className="text-gray-600">{likes} Likes</span>
             </div>
 
@@ -266,20 +242,14 @@ const PostDetails = () => {
                   className="flex-1 p-2 border rounded"
                   placeholder="Write a comment..."
                 />
-                <button
-                  onClick={submitComment}
-                  className="ml-2 bg-violet-600 text-white px-4 py-2 rounded"
-                >
+                <button onClick={submitComment} className="ml-2 bg-violet-600 text-white px-4 py-2 rounded">
                   Post
                 </button>
               </div>
             </div>
           </div>
 
-          <button
-            className="mt-6 bg-[#A367B1] text-white px-4 py-2 rounded hover:bg-violet-700 self-start"
-            onClick={() => navigate(-1)}
-          >
+          <button className="mt-6 bg-[#A367B1] text-white px-4 py-2 rounded hover:bg-violet-700 self-start" onClick={() => navigate(-1)}>
             ← Go Back
           </button>
         </div>

@@ -74,7 +74,9 @@ public class SecurityConfig {
                                 "/api/v1/posts/*/comments",       // ✅ Valid
                                 "/api/v1/posts/*",                // ✅ Valid
                                 "/api/v1/posts/feed",
-                                "/api/v1/posts/user/*","/api/v1/admin/**" ).permitAll()
+
+                                "/api/v1/posts/user/*","/api/v1/admin/**","/api/learningp/**" ).permitAll()
+
 
                         .anyRequest().authenticated()
                 )
