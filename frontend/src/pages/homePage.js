@@ -26,14 +26,18 @@ const Home = ({ setUserEmail }) => {
         setUserEmail(display);
         localStorage.setItem("userIdentifier", display);
 
-        if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
-          localStorage.setItem("questionnaireCompleted", "false");
-          navigate("/questionnaire");
-        } else {
-          localStorage.setItem("questionnaireCompleted", "true");
-          navigate("/feed"); 
-        }
+        // Check if questionnaire is already completed
+        const questionnaireCompleted = localStorage.getItem("questionnaireCompleted") === "true";
         
+        if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
+          if (!questionnaireCompleted) {
+            navigate("/questionnaire");
+          } else {
+            navigate("/feed");
+          }
+        } else {
+          navigate("/feed");
+        }
       })
       .catch(() => {
         setUserMessage("Please sign in to access full features.");
@@ -44,16 +48,16 @@ const Home = ({ setUserEmail }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (isSignUpMode && password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-
+  
     const endpoint = isSignUpMode
       ? "http://localhost:8080/api/v1/demo/signup"
       : "http://localhost:8080/api/v1/demo/signin";
-
+  
     try {
       const res = await fetch(endpoint, {
         method: "POST",
@@ -61,56 +65,44 @@ const Home = ({ setUserEmail }) => {
         credentials: "include",
         body: JSON.stringify({ email, password }),
       });
-
+  
       const msg = await res.text();
       alert(msg);
-
+  
       if (res.ok) {
         setShowEmailSignup(false);
         setUserEmail(email);
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-
+  
         const userRes = await fetch("http://localhost:8080/api/v1/demo/me", {
           method: "GET",
           credentials: "include",
         });
-
+  
         if (userRes.ok) {
           const data = await userRes.json();
           const display = data.name ? data.name : data.email;
+  
           setUserMessage(`Welcome, ${display}!`);
           setUserEmail(display);
           localStorage.setItem("userIdentifier", display);
-
+  
+          // 🔍 Use backend firstTimeLogin flag to determine route
           if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
-            const alreadyCompleted = localStorage.getItem("questionnaireCompleted");
-          
-            if (alreadyCompleted === "true") {
-              // ✅ User has already completed the questionnaire
-              const profileCompleted = localStorage.getItem("profileCompleted");
-              if (profileCompleted === "true") {
-                navigate("/feed");
-              } else {
-                navigate("/profile-form");
-              }
-            } else {
-              // 🟡 First time user and not completed
-              localStorage.setItem("questionnaireCompleted", "false");
-              navigate("/questionnaire");
-            }
+            navigate("/questionnaire");
           } else {
-            localStorage.setItem("questionnaireCompleted", "true");
             navigate("/feed");
           }
-          
         }
       }
     } catch (error) {
       alert("An error occurred. Please try again.");
+      console.error(error);
     }
   };
+  
 
   return (
     <>
