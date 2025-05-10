@@ -68,20 +68,42 @@ const Questionnaire = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // ✅ When finished answering all questions:
+      // Validate all answers exist
+      if (!answers[1] || !answers[2] || !answers[3] || !answers[4]) {
+        alert("Please answer all questions.");
+        return;
+      }
+  
       fetch("http://localhost:8080/api/v1/demo/complete-questionnaire", {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          interests: (answers[1] || []).join(","),
+
+          skillLevel: answers[2],
+          contentType: answers[3],
+          timeCommitment: answers[4],
+        }),
+      })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to save questionnaire");
+        return res.text();
       })
       .then(() => {
-        localStorage.setItem("questionnaireCompleted", "true"); // Mark complete locally
-        navigate("/profile-form");
+        setSubmitted(true);    // ✅ show thank you screen
+        localStorage.setItem("questionnaireCompleted", "true");
+        setTimeout(() => navigate("/profile-form"), 1500);   // nice delay
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         alert("Something went wrong while saving your preferences.");
       });
     }
   };
+  
   
   
 

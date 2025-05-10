@@ -57,10 +57,11 @@ const PostDetails = () => {
         const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
         const data = await res.json();
         setPostOwnerEmail(data.postOwnerEmail);
-        setComments(Array.isArray(data.comments) ? data.comments : []);
+
+        setComments(data.comments);
       } catch (err) {
         console.error("Failed to fetch comments:", err.message);
-        setComments([]);
+
       }
     };
 
@@ -69,12 +70,6 @@ const PostDetails = () => {
     fetchComments();
   }, [id]);
 
-  const refreshComments = async () => {
-    const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
-    const data = await res.json();
-    setPostOwnerEmail(data.postOwnerEmail);
-    setComments(Array.isArray(data.comments) ? data.comments : []);
-  };
 
   const toggleLike = async () => {
     await fetch(`${BASE_URL}/api/v1/posts/${id}/like`, {
@@ -127,8 +122,15 @@ const PostDetails = () => {
     }
   };
 
+  const refreshComments = async () => {
+    const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
+    const data = await res.json();
+    setPostOwnerEmail(data.postOwnerEmail);
+    setComments(data.comments);
+  };
+
   const renderComments = (commentList, level = 0) => {
-    if (!Array.isArray(commentList)) return null; // ✅ Defensive check
+
     return commentList.map((c) => (
       <div key={c.id} className={`ml-${level * 4} mt-2`}>
         <div className="bg-gray-100 p-2 rounded text-sm flex justify-between items-start">
