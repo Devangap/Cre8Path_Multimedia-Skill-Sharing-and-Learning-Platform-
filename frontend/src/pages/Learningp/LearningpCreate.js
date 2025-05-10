@@ -24,6 +24,7 @@ const LearningpCreate = () => {
   return (
     <>
       <Toaster position="top-right" />
+      {/* <h1 className="text-xl font-semibold text-center mt-5">Create Own Learning Progress</h1> */}
       <LearningpForm onSubmit={handleCreate} />
     </>
   );

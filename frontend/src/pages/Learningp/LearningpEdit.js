@@ -49,7 +49,7 @@ const LearningpEdit = () => {
   return (
     <div>
       <Toaster position="top-right" />
-      <h1 className="text-xl font-semibold text-center my-4">Edit Learning Progress</h1>
+      {/* <h1 className="text-xl font-semibold text-center my-4">Edit Learning Progress</h1> */}
       <LearningpForm initialData={initialData} onSubmit={handleUpdate} />
     </div>
   );

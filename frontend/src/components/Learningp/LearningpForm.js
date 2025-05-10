@@ -25,7 +25,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <form className="border rounded-md border-gray-300 p-6 w-full max-w-md shadow-xl" onSubmit={handleSubmit}>
-        <h2 className="text-xl font-semibold text-center mb-6">Learning Path Form</h2>
+        <h2 className="text-xl font-semibold text-center mb-6">Learning Progress Form</h2>
 
         {/* Title */}
         <label className="block text-sm font-medium text-gray-700">Title</label>
@@ -114,7 +114,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-500"
           >
             Submit
           </button>
