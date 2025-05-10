@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+
     <list default="true" id="e4a36ddf-ca30-4224-9d4e-7da356ee8f1a" name="Changes" comment="" />
+
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,6 +23,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Python.recommendation_service_flask.executor&quot;: &quot;Run&quot;,
@@ -35,6 +38,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
+
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

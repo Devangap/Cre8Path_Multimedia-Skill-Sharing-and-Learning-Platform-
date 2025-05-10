@@ -1,7 +1,9 @@
 package com.projectPAF.Cre8Path.controller;
 
 import com.projectPAF.Cre8Path.model.Post;
+
 import com.projectPAF.Cre8Path.model.PostResponseDTO;
+
 import com.projectPAF.Cre8Path.model.User;
 import com.projectPAF.Cre8Path.repository.PostRepository;
 import com.projectPAF.Cre8Path.repository.ProfileRepository;
@@ -29,6 +31,7 @@ public class PostRecommendationController {
     private final QuestionnaireResponseRepository questionnaireRepository;
 
     @GetMapping("/post")
+
     public ResponseEntity<List<PostResponseDTO>> getRecommendedPosts(Principal principal) {
         User user = userRepository.findByEmail(principal.getName()).orElseThrow();
 
@@ -42,6 +45,7 @@ public class PostRecommendationController {
             }
         });
 
+
         questionnaireRepository.findByUser(user).ifPresent(response -> {
             if (response.getInterests() != null) {
                 interests[0] = response.getInterests();
@@ -53,6 +57,7 @@ public class PostRecommendationController {
         );
 
         List<Post> posts = postRepository.findAllById(recommendedIds);
+
 
         // ✅ Convert to DTO with resolved usernames
         List<PostResponseDTO> dtos = posts.stream()

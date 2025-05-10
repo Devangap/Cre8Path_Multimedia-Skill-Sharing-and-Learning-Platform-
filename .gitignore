@@ -2,3 +2,4 @@
 Backend/.env
 .vscode/
 .idea/
+*.properties
