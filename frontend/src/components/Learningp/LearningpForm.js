@@ -1,171 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+
 
 const LearningpForm = ({ initialData = {}, onSubmit }) => {
   const [formData, setFormData] = useState({
-    course_id: initialData.course_id || '',
+    title: initialData.title || '',
+    description: initialData.description || '',
+    category: initialData.category || '',
     start_date: initialData.start_date || '',
     end_date: initialData.end_date || '',
     status: initialData.status || '',
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [courseSuggestions, setCourseSuggestions] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  useEffect(() => {
-    if (searchQuery) {
-      axios
-        .get(`/api/courses/search?name=${searchQuery}`)
-        .then((response) => setCourseSuggestions(response.data))
-        .catch((error) => console.error('Error fetching course suggestions:', error));
-    } else {
-      setCourseSuggestions([]);
-    }
-  }, [searchQuery]);
-
-  const handleCourseSelect = (courseId) => {
-    setFormData({ ...formData, course_id: courseId });
-    setSearchQuery('');
-    setCourseSuggestions([]);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    console.log('Form data before submission:', formData);
+    onSubmit(formData); // Call onSubmit from parent component
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
-      <form className="border rounded-md border-gray-300 p-4 w-full sm:w-auto shadow-lg" onSubmit={handleSubmit}>
-        <div className="space-y-6"> {/* Reduced upper margin */}
-          <div className="pb-12"> {/* Removed border-b class */}
-            <h2 className="text-xl font-sans font-semibold leading-7 text-gray-900 text-center">Learning Path Form</h2>
-            <div className="lg:w-[400px] mt-3 grid grid-cols-1 gap-y-4 w-auto mx-auto"> {/* Adjusted width and centered form */}
-              {/* Course Search */}
-              <div>
-                <label htmlFor="course_search" className="block text-sm font-medium leading-6 text-gray-900">
-                  Search Course
-                </label>
-                <div className="mt-2 relative">
-                  <input
-                    type="text"
-                    name="course_search"
-                    id="course_search"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    placeholder="Type course name..."
-                  />
-                  {courseSuggestions.length > 0 && (
-                    <ul className="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full shadow-lg">
-                      {courseSuggestions.map((course) => (
-                        <li
-                          key={course.id}
-                          onClick={() => handleCourseSelect(course.id)}
-                          className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                        >
-                          {course.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+      <form className="border rounded-md border-gray-300 p-6 w-full max-w-md shadow-xl" onSubmit={handleSubmit}>
+        <h2 className="text-xl font-semibold text-center mb-6">Learning Progress Form</h2>
 
-              {/* Course ID */}
-              <div>
-                <label htmlFor="course_id" className="block text-sm font-medium leading-6 text-gray-900">
-                  Course ID
-                </label>
-                <div className="mt-2">  
-                  <input
-                    type="number"
-                    name="course_id"
-                    id="course_id"
-                    value={formData.course_id}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    readOnly
-                  />
-                </div>
-              </div>
+        {/* Title */}
+        <label className="block text-sm font-medium text-gray-700">Title</label>
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
+          required
+        />
 
-              {/* Start Date */}
-              <div>
-                <label htmlFor="start_date" className="block text-sm font-medium leading-6 text-gray-900">
-                  Start Date
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="date"
-                    name="start_date"
-                    id="start_date"
-                    value={formData.start_date}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
+        {/* Description */}
+        <label className="block text-sm font-medium text-gray-700">Description</label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
+          required
+        />
 
-              {/* End Date */}
-              <div>
-                <label htmlFor="end_date" className="block text-sm font-medium leading-6 text-gray-900">
-                  End Date
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="date"
-                    name="end_date"
-                    id="end_date"
-                    value={formData.end_date}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
+        {/* Category */}
+        <label className="block text-sm font-medium text-gray-700">Category</label>
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
+          required
+        >
+          <option value="">Select Category</option>
+          <option value="Photography">Photography</option>
+          <option value="Videography">Videography</option>
+          <option value="Animation">Animation</option>
+          <option value="Graphic Designing">Graphic Designing</option>
+          <option value="Music Production">Music Production</option>
+          <option value="UI/UX">UI/UX</option>
+          <option value="Content Creation">Content Creation</option>
+          <option value="Advertising">Advertising</option>
+          <option value="Marketing">Marketing</option>
+        </select>
 
-              {/* Status */}
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">
-                  Status
-                </label>
-                <div className="mt-2">
-                  <select
-                    name="status"
-                    id="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="enroll">Enroll</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mt-3 flex items-center justify-end gap-x-6">
+        {/* Start Date */}
+        <label className="block text-sm font-medium text-gray-700">Start Date</label>
+        <input
+          type="date"
+          name="start_date"
+          value={formData.start_date}
+          onChange={handleChange}
+          className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
+        />
+
+        {/* End Date */}
+        <label className="block text-sm font-medium text-gray-700">End Date</label>
+        <input
+          type="date"
+          name="end_date"
+          value={formData.end_date}
+          onChange={handleChange}
+          className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
+        />
+
+        {/* Status */}
+        <label className="block text-sm font-medium text-gray-700">Status</label>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          className="mb-6 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
+        >
+          <option value="">Select Status</option>
+          <option value="Just Started">Just Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Incomplete">Incomplete</option>
+          <option value="Completed">Completed</option>
+        </select>
+
+        <div className="flex justify-between">
           <button
             type="button"
-            className="rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            onClick={() => console.log('Cancel')}
+            onClick={() => (window.location.href = '/learningp')}
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-500"
           >
             Submit
           </button>

@@ -107,6 +107,11 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import LearningpList from './pages/Learningp/LearningpList';
 import LearningpCreate from './pages/Learningp/LearningpCreate';
 import LearningpEdit from './pages/Learningp/LearningpEdit';
+import NotificationsList from './pages/Notifications/Notification.js';
+
+// LearningPlan
+import LearningPlanCreate from "./pages/LearningPlans/LearningPlanCreate";
+
 import MyLearningPlans from './pages/LearningPlans/MyLearningPlans';
 
 const AppContent = () => {
@@ -138,6 +143,7 @@ const AppContent = () => {
     <>
       {shouldShowNavbar && <Navbar userEmail={userIdentifier} />}
       <Routes>
+
         <Route path="/" element={<Home setUserEmail={setUserIdentifier} />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
         <Route path="/upload" element={<PostUpload userEmail={userIdentifier} />} />
@@ -152,10 +158,12 @@ const AppContent = () => {
         <Route path="/learningp/create" element={<LearningpCreate />} />
         <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
         <Route path="/my-learning-plans" element={<MyLearningPlans />} />
+        <Route path="/notifications" element={<NotificationsList />} />
       </Routes>
     </>
   );
 };
+
 
 function App() {
   return (
