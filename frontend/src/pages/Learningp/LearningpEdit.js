@@ -36,7 +36,7 @@ const LearningpEdit = () => {
       .put(`http://localhost:8080/api/learningp/${id}`, data, { withCredentials: true })
       .then(() => {
         toast.success('Learning progress successfully updated!');
-        setTimeout(() => navigate('/learningp'), 1500);
+        setTimeout(() => navigate('/feed'), 1500);
       })
       .catch((error) => {
         console.error('Error updating learning progress:', error);

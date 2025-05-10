@@ -14,7 +14,7 @@ const LearningpCreate = () => {
         withCredentials: true
       });
       toast.success('Learning progress saved!');
-      setTimeout(() => navigate('/learningp'), 1500);
+      setTimeout(() => navigate('/feed'), 1500);
     } catch (error) {
       console.error('Submission failed:', error);
       toast.error('Submission failed.');
