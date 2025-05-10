@@ -90,10 +90,13 @@ public class AuthService {
             String email = oauthUser.getAttribute("email");
             String name = oauthUser.getAttribute("name");
             String login = oauthUser.getAttribute("login");
+            String oauthId = oauthUser.getAttribute("sub");
 
             response.put("name", name != null ? name : login);
             response.put("username", login);
             response.put("email", email);
+            response.put("oauthId", oauthId); // ✅ ADD THIS
+
 
             // ✅ Lookup firstTimeLogin from DB
             userRepository.findByEmail(email).ifPresent(user ->
