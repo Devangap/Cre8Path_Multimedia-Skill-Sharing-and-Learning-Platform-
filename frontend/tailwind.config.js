@@ -6,6 +6,7 @@ module.exports = {
   },
   plugins: [
     require('@tailwindcss/forms'),      // ✅ Better forms (inputs, buttons)
-    require('@tailwindcss/typography'), // ✅ Beautiful text formatting (headings, paragraphs)
+    require('@tailwindcss/typography'),
+    require('tailwind-scrollbar-hide') , // ✅ Beautiful text formatting (headings, paragraphs)
   ],
 }

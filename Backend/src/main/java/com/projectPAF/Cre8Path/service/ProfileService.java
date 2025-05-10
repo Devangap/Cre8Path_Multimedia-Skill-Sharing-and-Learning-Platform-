@@ -15,14 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -166,12 +165,30 @@ public class ProfileService {
     }
 
 
-    public List<Profile> searchProfiles(String query) {
-        // Search by username (you can add more fields to search if needed)
-        return profileRepository.findByUsernameContainingIgnoreCaseOrFullNameContainingIgnoreCase(query, query);
+//    public List<Profile> searchProfiles(String query) {
+//        // Search by username (you can add more fields to search if needed)
+//        return profileRepository.findByUsernameContainingIgnoreCaseOrFullNameContainingIgnoreCase(query, query);
+//    }
+
+    public List<Map<String, Object>> searchProfiles(String query) {
+        List<Profile> results = profileRepository.findAll(); // fetch all profiles
+
+        return results.stream()
+                .filter(profile ->
+                        profile.getUsername().toLowerCase().contains(query.toLowerCase()) ||
+                                profile.getFullName().toLowerCase().contains(query.toLowerCase()) ||
+                                (profile.getSkills() != null && profile.getSkills().toLowerCase().contains(query.toLowerCase()))
+                )
+                .map(profile -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", profile.getId());
+                    map.put("username", profile.getUsername());
+                    map.put("fullName", profile.getFullName());
+                    map.put("profilePictureUrl", profile.getProfilePictureUrl());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
-
-
 
 
 

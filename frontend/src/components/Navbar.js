@@ -130,7 +130,7 @@ const Sidebar = ({ userEmail }) => {
         </div>
 
         {/* Search Bar */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <input
             type="text"
             value={searchQuery}
@@ -138,12 +138,48 @@ const Sidebar = ({ userEmail }) => {
             placeholder="Search profiles..."
             className="w-full p-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
+        </div> */}
+
+        <div className="mb-6 relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search profiles..."
+            className="w-full p-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
+          />
+
+          {/* Search Results (absolute inside relative container) */}
+          {searchQuery && searchResults.length > 0 && (
+            <div className="absolute z-50 left-0 mt-1 w-full bg-white p-2 shadow-lg rounded max-h-64 overflow-y-auto scrollbar-hide">
+              <ul>
+                {searchResults.map((profile) => (
+                  <li
+                    key={profile.id}
+                    className="mb-2 flex gap-3 items-start cursor-pointer hover:bg-gray-50 p-2 rounded"
+                    onClick={() => navigate(`/profile/${profile.username}`)}
+                  >
+                    <img
+                      src={`http://localhost:8080${profile.profilePictureUrl || "/default-avatar.png"}`}
+                      alt={profile.username}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div>
+                      <div className="font-semibold text-sm text-gray-800">{profile.username}</div>
+                      <div className="text-xs text-gray-600">{profile.fullName}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
+
 
         {/* Search Results */}
         {searchQuery && searchResults.length > 0 && (
-          <div className="bg-white p-4 shadow-md rounded mt-2 max-h-64 overflow-y-auto">
-            <ul>
+          <div className="overflow-y-auto max-h-64 scrollbar-hide">
+            {/* <ul>
               {searchResults.map((profile) => (
                 <li key={profile.id} className="mb-2">
                   <a
@@ -154,7 +190,35 @@ const Sidebar = ({ userEmail }) => {
                   </a>
                 </li>
               ))}
-            </ul>
+            </ul> */}
+            <ul>
+            {searchResults.map((profile) => (
+              <li
+                key={profile.id}
+                className="mb-3 flex gap-3 items-start cursor-pointer hover:bg-gray-50 p-2 rounded"
+                onClick={() => {
+                  console.log("Redirecting to:", `/profile/${profile.username}`);
+                  navigate(`/profile/${profile.username}`);
+                  setSearchQuery('');
+                  setSearchResults([]);
+                }}
+
+
+              >
+                <img
+                  src={`http://localhost:8080${profile.profilePictureUrl || "/default-avatar.png"}`}
+                  alt={profile.username}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div>
+                  <div className="font-semibold text-sm text-gray-800">{profile.username}</div>
+                  <div className="text-xs text-gray-600">{profile.fullName}</div>
+
+                </div>
+              </li>
+            ))}
+          </ul>
+
           </div>
         )}
 

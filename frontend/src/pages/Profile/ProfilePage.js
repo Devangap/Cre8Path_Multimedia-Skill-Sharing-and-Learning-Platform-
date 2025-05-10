@@ -19,7 +19,10 @@ const ProfilePage = () => {
   const [editingPostId, setEditingPost] = useState(null);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isOwnProfile, setIsOwnProfile] = useState(false); // to avoid other users edit/create/delete actions
+  const [userData, setUserData] = useState(null);
 
   const fetchProfile = async () => {
     try {
@@ -30,6 +33,19 @@ const ProfilePage = () => {
       setProfile(data);
     } catch (err) {
       console.error(err.message);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/profile/me", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch logged-in user.");
+      const data = await res.json();
+      setUserData(data);
+    } catch (err) {
+      console.error("Error fetching logged-in user:", err.message);
     }
   };
 
@@ -50,8 +66,11 @@ const ProfilePage = () => {
 
   useEffect(() => {
     fetchProfile();
+    fetchUserData(); // 👈 add this
     fetchMyPosts();
-  }, []);
+    
+  }, [username]); // 👈 add username here
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -65,6 +84,12 @@ const ProfilePage = () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (profile && userData) {
+      setIsOwnProfile(profile.username === userData.username);
+    }
+  }, [profile, userData]);
   
 
   const renderTabContent = () => {

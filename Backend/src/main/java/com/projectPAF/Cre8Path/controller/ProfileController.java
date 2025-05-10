@@ -217,12 +217,12 @@ public class ProfileController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchProfiles(@RequestParam String query) {
-        List<Profile> profiles = profileService.searchProfiles(query); // Service method to search profiles
-        return ResponseEntity.ok(profiles);
+        try {
+            List<Map<String, Object>> profiles = profileService.searchProfiles(query);
+            return ResponseEntity.ok(profiles);
+        } catch (Exception e) {
+            e.printStackTrace(); // 🔍 See exact reason in console
+            return ResponseEntity.status(500).body("Error searching profiles: " + e.getMessage());
+        }
     }
-
-
-
-
-
 }
