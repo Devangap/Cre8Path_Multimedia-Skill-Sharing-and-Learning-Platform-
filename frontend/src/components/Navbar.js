@@ -25,13 +25,8 @@ const Sidebar = ({ userEmail }) => {
   
     // ✅ 3. Optional: If using Google OAuth, redirect to Google logout
     const isOAuthUser = userEmail && userEmail.endsWith("@gmail.com"); // crude check, customize if needed
-    if (isOAuthUser) {
-      // Redirect to Google's logout and then back to your app
-      window.location.href = "https://accounts.google.com/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000/";
-    } else {
-      // Normal user logout
-      window.location.href = "/";
-    }
+    window.location.href = "/";
+
   };
   
   
@@ -224,7 +219,11 @@ const Sidebar = ({ userEmail }) => {
 
         {/* Links */}
         <nav className="flex flex-col space-y-4">
-          <a href="/" className="text-gray-700 hover:text-blue-600">Home</a>
+        {userEmail ? (
+    <a href="/feed" className="text-gray-700 hover:text-blue-600">Home</a>
+  ) : (
+    <a href="/" className="text-gray-700 hover:text-blue-600">Home</a>
+  )}
           {/* <a href="/about" className="text-gray-700 hover:text-blue-600">About</a> */}
           {/* <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a> */}
 
