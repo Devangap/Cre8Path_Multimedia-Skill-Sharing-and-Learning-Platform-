@@ -5,6 +5,8 @@ const skillOptions = [
   "Music Production", "UI/UX", "Content Creation", "Advertising", "Marketing",
 ];
 
+
+
 const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
   const [formData, setFormData] = useState({
     username: "",
@@ -26,10 +28,37 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
     }
   }, [initialData]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "username") {
+      setUsernameError("");
+      if (value === initialData.username) return; // Don't check if it's unchanged
+  
+      setCheckingUsername(true);
+      setTimeout(async () => {
+        try {
+          const res = await fetch(`http://localhost:8080/api/profile/${value}`, {
+            method: "GET",
+            credentials: "include",
+          });
+  
+          if (res.ok) {
+            setUsernameError(" Username is already taken!");
+          } else {
+            setUsernameError("");
+          }
+        } catch (err) {
+          console.error(err.message);
+          setUsernameError("Error checking username");
+        } finally {
+          setCheckingUsername(false);
+        }
+      }, 500);
+    }
   };
+  
 
   const handleSkillToggle = (skill) => {
     const updated = formData.skills.includes(skill)
@@ -89,6 +118,8 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
       alert("Something went wrong while updating your profile.");
     }
   };
+  const [usernameError, setUsernameError] = useState("");
+const [checkingUsername, setCheckingUsername] = useState(false);
 
   const handleDeleteProfile = async () => {
     const confirmed = window.confirm("Are you sure you want to permanently delete your profile?");
@@ -129,10 +160,16 @@ const EditProfileModal = ({ initialData, onClose, refreshProfile }) => {
         <h2 className="text-2xl font-bold text-center text-black mb-6 drop-shadow-md">Edit Profile</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <input name="username" value={formData.username} onChange={handleInputChange} required
-            className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-400 outline-none"
-            placeholder="Username"
-          />
+        <input
+    name="username"
+    value={formData.username}
+    onChange={handleInputChange}
+    required
+    className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-400 outline-none"
+    placeholder="Username"
+  />
+  {checkingUsername && <p className="text-sm text-blue-600 mt-1">Checking username...</p>}
+  {usernameError && <p className="text-sm text-red-500 mt-1">{usernameError}</p>}
           <input name="fullName" value={formData.fullName} onChange={handleInputChange}
             className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-400 outline-none"
             placeholder="Full Name"
