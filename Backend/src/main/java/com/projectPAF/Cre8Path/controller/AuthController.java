@@ -1,4 +1,6 @@
 package com.projectPAF.Cre8Path.controller;
+import com.projectPAF.Cre8Path.model.QuestionnaireResponse;
+import com.projectPAF.Cre8Path.repository.QuestionnaireResponseRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -26,14 +28,21 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/demo")
 public class AuthController {
 
+
     @Autowired
     private AuthService authService;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private QuestionnaireResponseRepository questionnaireResponseRepository;
 
     @GetMapping
     public ResponseEntity<String> hello(@AuthenticationPrincipal OAuth2User principal) {
@@ -62,10 +71,10 @@ public class AuthController {
         return authService.getUserDetails(principal);
     }
 
-    @PostMapping("/complete-questionnaire")
-    public ResponseEntity<String> completeQuestionnaire(@AuthenticationPrincipal Object principal) {
-        return authService.completeQuestionnaire(principal);
-    }
+//    @PostMapping("/complete-questionnaire")
+//    public ResponseEntity<String> completeQuestionnaire(@AuthenticationPrincipal Object principal) {
+//        return authService.completeQuestionnaire(principal);
+//    }
     @GetMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -78,6 +87,23 @@ public class AuthController {
         }
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
+    @PostMapping("/complete-questionnaire")
+    public ResponseEntity<?> saveQuestionnaire(@RequestBody QuestionnaireResponse dto, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName()).orElseThrow();
+
+        QuestionnaireResponse response = new QuestionnaireResponse();
+        response.setUser(user);
+        response.setInterests(String.join(",", dto.getInterests()));
+        response.setSkillLevel(dto.getSkillLevel());
+        response.setContentType(dto.getContentType());
+        response.setTimeCommitment(dto.getTimeCommitment());
+
+        questionnaireResponseRepository.save(response);
+
+        return ResponseEntity.ok("Saved");
+    }
+
+
 
 
 }

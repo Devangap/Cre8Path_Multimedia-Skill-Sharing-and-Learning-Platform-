@@ -1,15 +1,8 @@
 package com.projectPAF.Cre8Path.service;
 
 import com.projectPAF.Cre8Path.model.*;
-
 import com.projectPAF.Cre8Path.repository.*;
 import org.hibernate.Hibernate;
-
-import com.projectPAF.Cre8Path.repository.FollowRepository;
-import com.projectPAF.Cre8Path.repository.PostRepository;
-import com.projectPAF.Cre8Path.repository.ProfileRepository;
-import com.projectPAF.Cre8Path.repository.UserRepository;
-
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +31,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
-
     private final FollowRepository followRepository;
-
-
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
@@ -101,29 +91,61 @@ public class PostService {
 
     public ResponseEntity<?> getMyPosts(OAuth2User oauth2User, Principal principal) {
         String email = extractEmail(oauth2User, principal);
-        if (email == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
+        if (email == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
+
         User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+
         List<Post> posts = postRepository.findByUser(user);
-        List<PostResponseDTO> dtoList = posts.stream().map(PostResponseDTO::new).toList();
+
+        List<PostResponseDTO> dtoList = posts.stream()
+                .map(post -> {
+                    String username = PostResponseDTO.resolveUsername(post, profileRepository);
+                    long likeCount = likeRepository.countByPost(post);
+                    long commentCount = commentRepository.countByPost(post);
+                    return new PostResponseDTO(post, username, likeCount, commentCount);
+                })
+                .toList();
+
         return ResponseEntity.ok(dtoList);
     }
 
-    public ResponseEntity<List<PostResponseDTO>> getFeed() {
-        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
-        List<PostResponseDTO> dtoList = posts.stream().map(PostResponseDTO::new).toList();
-        return ResponseEntity.ok(dtoList);
+    public ResponseEntity<List<PostResponseDTO>> getFeed(OAuth2User oauth2User, Principal principal) {
+        String email = oauth2User != null ? oauth2User.getAttribute("email") : principal.getName();
+        User user = userRepository.findByEmail(email).orElseThrow();
+        Profile profile = profileRepository.findByUser(user).orElseThrow();
+
+        List<Follow> followRecords = followRepository.findByFollower(profile);
+        List<User> followedUsers = followRecords.stream()
+                .map(follow -> follow.getFollowing().getUser())
+                .toList();
+
+        List<Post> feedPosts = postRepository.findByUserInOrderByCreatedAtDesc(followedUsers);
+
+        List<PostResponseDTO> response = feedPosts.stream()
+                .map(post -> {
+                    String resolvedUsername = PostResponseDTO.resolveUsername(post, profileRepository);
+                    long likeCount = likeRepository.countByPost(post);
+                    long commentCount = commentRepository.countByPost(post);
+                    return new PostResponseDTO(post, resolvedUsername, likeCount, commentCount);
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getPostById(Long id) {
         Post post = postRepository.findById(id).orElse(null);
         if (post == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found."));
-        return ResponseEntity.ok(new PostResponseDTO(post));
+
+        String username = PostResponseDTO.resolveUsername(post, profileRepository);
+        return ResponseEntity.ok(new PostResponseDTO(post, username));
     }
 
     public ResponseEntity<Map<String, String>> deletePost(Long id, OAuth2User oauth2User, Principal principal) {
         String email = extractEmail(oauth2User, principal);
-        Map<String, String> response = new HashMap<>();
         if (email == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
         Post post = postRepository.findById(id).orElse(null);
         if (post == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found."));
@@ -206,33 +228,18 @@ public class PostService {
         if (profileOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         String email = profileOpt.get().getUser().getEmail();
         List<Post> posts = postRepository.findByUserEmail(email);
-        return ResponseEntity.ok(posts);
-    }
-    public ResponseEntity<List<PostResponseDTO>> getFeed(OAuth2User oauth2User, Principal principal) {
-        String email = oauth2User != null ? oauth2User.getAttribute("email") : principal.getName();
-        User user = userRepository.findByEmail(email).orElseThrow();
-        Profile profile = profileRepository.findByUser(user).orElseThrow();
 
-        // Fetch users the current user is following
-        List<Follow> followRecords = followRepository.findByFollower(profile);
-        List<User> followedUsers = followRecords.stream()
-                .map(follow -> follow.getFollowing().getUser())
+        List<PostResponseDTO> dtoList = posts.stream()
+                .map(post -> {
+                    String resolvedUsername = PostResponseDTO.resolveUsername(post, profileRepository);
+                    long likeCount = likeRepository.countByPost(post);
+                    long commentCount = commentRepository.countByPost(post);
+                    return new PostResponseDTO(post, resolvedUsername, likeCount, commentCount);
+                })
                 .toList();
 
-        // ✅ Get posts from followed users only (excluding current user's own posts)
-        List<Post> feedPosts = postRepository.findByUserInOrderByCreatedAtDesc(followedUsers);
-
-        // Convert to DTOs using constructor
-        List<PostResponseDTO> response = feedPosts.stream()
-                .map(PostResponseDTO::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(dtoList);
     }
-
-
-
-
 
     public ResponseEntity<?> toggleLike(Long postId, Principal principal) {
         String email = principal.getName();
@@ -260,9 +267,11 @@ public class PostService {
         return ResponseEntity.ok(likeRepository.countByPost(post));
     }
 
-    public ResponseEntity<List<CommentResponseDTO>> getComments(Long postId) {
+    public ResponseEntity<?> getComments(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) return ResponseEntity.ok(List.of());
+        if (post == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Post not found"));
+        }
 
         List<Comment> comments = commentRepository.findByPostOrderByCreatedAtAsc(post);
 
@@ -276,14 +285,18 @@ public class PostService {
                 .map(c -> {
                     String displayName = profileRepository.findByUser(c.getUser())
                             .map(Profile::getUsername)
-                            .orElseGet(() -> c.getUser().getEmail() != null ? c.getUser().getEmail() : "User-" + c.getUser().getOauthId());
+                            .orElseGet(() -> c.getUser().getEmail() != null
+                                    ? c.getUser().getEmail()
+                                    : "User-" + c.getUser().getOauthId());
                     return new CommentResponseDTO(c, displayName);
                 })
                 .toList();
 
-        return ResponseEntity.ok(dtoList);
+        return ResponseEntity.ok(Map.of(
+                "postOwnerEmail", post.getUser().getEmail(),
+                "comments", dtoList
+        ));
     }
-
 
     private void initializeRepliesRecursively(Comment comment) {
         Hibernate.initialize(comment.getReplies());
@@ -293,7 +306,6 @@ public class PostService {
             }
         }
     }
-
 
     @Transactional
     public ResponseEntity<?> addComment(Long postId, String content, Principal principal) {
@@ -310,7 +322,6 @@ public class PostService {
         comment.setPost(post);
         comment.setUser(user);
         comment.setCreatedAt(LocalDateTime.now());
-        // ❌ Do not set parent here
         commentRepository.save(comment);
 
         return ResponseEntity.ok(Map.of("message", "Comment added"));
@@ -348,7 +359,6 @@ public class PostService {
         Post post = comment.getPost();
         String postOwnerEmail = post.getUser().getEmail();
 
-        // Allow if the requester is the comment owner OR the post owner
         if (!comment.getUser().getEmail().equals(requesterEmail) &&
                 !postOwnerEmail.equals(requesterEmail)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not allowed"));
@@ -357,9 +367,5 @@ public class PostService {
         commentRepository.delete(comment);
         return ResponseEntity.ok(Map.of("message", "Comment deleted"));
     }
-
-
-
-
-
 }
+

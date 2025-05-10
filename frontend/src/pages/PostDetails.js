@@ -10,10 +10,10 @@ const PostDetails = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState("");
+  const [newComment, setNewComment] = useState('');
   const [replyInputs, setReplyInputs] = useState({});
-  const [currentUserEmail, setCurrentUserEmail] = useState("");
-  const [currentUserOauthId, setCurrentUserOauthId] = useState("");
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [postOwnerEmail, setPostOwnerEmail] = useState('');
 
   const BASE_URL = 'http://localhost:8080';
 
@@ -23,7 +23,6 @@ const PostDetails = () => {
         const res = await fetch(`${BASE_URL}/api/v1/demo/me`, { credentials: 'include' });
         const data = await res.json();
         setCurrentUserEmail(data.email);
-        setCurrentUserOauthId(data.oauthId); // ✅ Store oauthId
       } catch (err) {
         console.error("Failed to fetch current user", err.message);
       }
@@ -31,6 +30,7 @@ const PostDetails = () => {
 
     fetchCurrentUser();
   }, []);
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -43,136 +43,126 @@ const PostDetails = () => {
       }
     };
 
-    const fetchCurrentUser = async () => {
+    const fetchLikes = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/v1/demo/me`, { credentials: 'include' });
+        const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/likes`);
         const data = await res.json();
-        if (data.email) setCurrentUserEmail(data.email);
+        setLikes(data);
       } catch (err) {
-        console.error("Failed to fetch current user", err.message);
+        console.error("Failed to fetch likes:", err.message);
+      }
+    };
+
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
+        const data = await res.json();
+        setPostOwnerEmail(data.postOwnerEmail);
+        setComments(data.comments);
+      } catch (err) {
+        console.error("Failed to fetch comments:", err.message);
       }
     };
 
     fetchPost();
     fetchLikes();
     fetchComments();
-    fetchCurrentUser();
   }, [id]);
-
-  const fetchLikes = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/likes`);
-      const data = await res.json();
-      setLikes(data);
-    } catch (err) {
-      console.error("Failed to fetch likes:", err.message);
-    }
-  };
-
-  const fetchComments = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`);
-      const data = await res.json();
-      setComments(data);
-    } catch (err) {
-      console.error("Failed to fetch comments:", err.message);
-    }
-  };
 
   const toggleLike = async () => {
     await fetch(`${BASE_URL}/api/v1/posts/${id}/like`, {
-      method: "POST",
-      credentials: "include",
+      method: 'POST',
+      credentials: 'include',
     });
-    fetchLikes();
+    const updatedLikes = await fetch(`${BASE_URL}/api/v1/posts/${id}/likes`);
+    const likeCount = await updatedLikes.json();
+    setLikes(likeCount);
   };
 
   const submitComment = async () => {
     if (!newComment.trim()) return;
     await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ content: newComment }),
     });
-    setNewComment("");
-    fetchComments();
+    setNewComment('');
+    await refreshComments();
   };
 
   const submitReply = async (parentId) => {
     const content = replyInputs[parentId]?.trim();
     if (!content) return;
     await fetch(`${BASE_URL}/api/v1/posts/${id}/comments/${parentId}/reply`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ content }),
     });
-    setReplyInputs((prev) => ({ ...prev, [parentId]: "" }));
-    fetchComments();
+    setReplyInputs(prev => ({ ...prev, [parentId]: '' }));
+    await refreshComments();
   };
 
   const handleDeleteComment = async (commentId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this comment?");
+    if (!confirmed) return;
     try {
       const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments/${commentId}`, {
-        method: "DELETE",
-        credentials: "include",
+        method: 'DELETE',
+        credentials: 'include',
       });
-      if (res.ok) {
-        fetchComments();
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to delete comment");
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete comment");
+      await refreshComments();
     } catch (err) {
-      console.error("Error deleting comment:", err.message);
+      alert(err.message);
     }
   };
 
-  const renderComments = (commentList, level = 0) => {
-    return commentList.map((c, i) => {
-      // ✅ DEBUG LOG
-      console.log("Checking delete condition:", c.authorEmail?.trim().toLowerCase(), currentUserEmail?.trim().toLowerCase());
-  
-      return (
-        <div key={i} className={`ml-${level * 4} mt-2`}>
-          <div className="bg-gray-100 p-2 rounded text-sm flex justify-between items-start">
-            <div>
-              <strong className="text-violet-700">{c.authorDisplayName}</strong>: {c.content}
-              <div className="text-xs text-gray-500">{new Date(c.createdAt).toLocaleString()}</div>
-            </div>
-            {(c.authorEmail?.trim().toLowerCase() === currentUserEmail?.trim().toLowerCase() ||
-              post.userEmail?.trim().toLowerCase() === currentUserEmail?.trim().toLowerCase()) && (
-              <button
-                onClick={() => handleDeleteComment(c.id)}
-                className="text-red-600 text-xs hover:underline ml-2"
-              >
-                Delete
-              </button>
-            )}
-
-
-          </div>
-          <div className="flex mt-1">
-            <input
-              value={replyInputs[c.id] || ""}
-              onChange={(e) => setReplyInputs({ ...replyInputs, [c.id]: e.target.value })}
-              placeholder="Write a reply..."
-              className="flex-1 p-1 border rounded text-xs"
-            />
-            <button
-              onClick={() => submitReply(c.id)}
-              className="ml-2 bg-violet-500 text-white text-xs px-2 py-1 rounded"
-            >
-              Reply
-            </button>
-          </div>
-          {c.replies?.length > 0 && renderComments(c.replies, level + 1)}
-        </div>
-      );
-    });
+  const refreshComments = async () => {
+    const res = await fetch(`${BASE_URL}/api/v1/posts/${id}/comments`, { credentials: 'include' });
+    const data = await res.json();
+    setPostOwnerEmail(data.postOwnerEmail);
+    setComments(data.comments);
   };
-  
+
+  const renderComments = (commentList, level = 0) => {
+    return commentList.map((c) => (
+      <div key={c.id} className={`ml-${level * 4} mt-2`}>
+        <div className="bg-gray-100 p-2 rounded text-sm flex justify-between items-start">
+          <div>
+            <strong className="text-violet-700">{c.authorDisplayName}</strong>: {c.content}
+            <div className="text-xs text-gray-500">{new Date(c.createdAt).toLocaleString()}</div>
+          </div>
+          {(c.authorEmail === currentUserEmail || postOwnerEmail === currentUserEmail) && (
+            <button
+              onClick={() => handleDeleteComment(c.id)}
+              className="text-red-600 text-xs hover:underline ml-2"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+        <div className="flex mt-1">
+          <input
+            value={replyInputs[c.id] || ''}
+            onChange={(e) => setReplyInputs({ ...replyInputs, [c.id]: e.target.value })}
+            placeholder="Write a reply..."
+            className="flex-1 p-1 border rounded text-xs"
+          />
+          <button
+            onClick={() => submitReply(c.id)}
+            className="ml-2 bg-violet-500 text-white text-xs px-2 py-1 rounded"
+          >
+            Reply
+          </button>
+        </div>
+        {c.replies?.length > 0 && renderComments(c.replies, level + 1)}
+      </div>
+    ));
+  };
+
   const handlePrev = () => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? post.imageUrls.length - 1 : prev - 1

@@ -85,12 +85,26 @@ const Home = ({ setUserEmail }) => {
           localStorage.setItem("userIdentifier", display);
 
           if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
-            localStorage.setItem("questionnaireCompleted", "false");
-            navigate("/questionnaire");
+            const alreadyCompleted = localStorage.getItem("questionnaireCompleted");
+          
+            if (alreadyCompleted === "true") {
+              // ✅ User has already completed the questionnaire
+              const profileCompleted = localStorage.getItem("profileCompleted");
+              if (profileCompleted === "true") {
+                navigate("/feed");
+              } else {
+                navigate("/profile-form");
+              }
+            } else {
+              // 🟡 First time user and not completed
+              localStorage.setItem("questionnaireCompleted", "false");
+              navigate("/questionnaire");
+            }
           } else {
             localStorage.setItem("questionnaireCompleted", "true");
-            navigate("/");
+            navigate("/feed");
           }
+          
         }
       }
     } catch (error) {
