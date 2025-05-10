@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,7 @@ public class LearningpController {
     @Autowired
     private UserRepository userRepository;
 
-   @PostMapping
+    @PostMapping
     public ResponseEntity<?> createLearningp(
             @AuthenticationPrincipal Object principal,
             @RequestBody Learningp learningp
@@ -39,20 +41,10 @@ public class LearningpController {
 
         String email = null;
 
-        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauthUser) {
-            // DEBUG: Print attributes to console
-            System.out.println("OAuth2 attributes: " + oauthUser.getAttributes());
-
-            // Try all common keys
+        if (principal instanceof OAuth2User oauthUser) {
             email = oauthUser.getAttribute("email");
-            if (email == null) {
-                email = oauthUser.getAttribute("preferred_username"); // fallback for some providers
-            }
-            if (email == null) {
-                email = oauthUser.getAttribute("login"); // fallback for GitHub
-            }
         } else if (principal instanceof org.springframework.security.core.userdetails.User user) {
-            email = user.getUsername(); // For form-based login
+            email = user.getUsername(); // For email/password login
         }
 
         if (email == null) {
@@ -68,11 +60,10 @@ public class LearningpController {
             userRepository.save(user);
         }
 
-        // Set the authenticated user
         learningp.setUser(user);
 
         try {
-            Learningp saved = service.createLearningp(learningp);
+            Learningp saved = service.createLearningp(learningp); // Ensure the service layer is updated for new fields
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
             response.put("error", "Failed to create learning progress: " + e.getMessage());

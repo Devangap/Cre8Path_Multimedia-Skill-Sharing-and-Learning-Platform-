@@ -17,9 +17,9 @@ public class LearningpService {
     private LearningpRepo repository;
 
     public Learningp createLearningp(Learningp learningp) {
-        // User is already set by the controller
-        return repository.save(learningp);
+    return repository.save(learningp); // Saving with new fields title, description, and category
     }
+
 
     public List<Learningp> getAllLearningp() {
         return repository.findAll();

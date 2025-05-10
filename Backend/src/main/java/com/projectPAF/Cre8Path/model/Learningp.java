@@ -11,7 +11,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,8 +27,14 @@ public class Learningp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "course_id", nullable = true)
-    private Long course_id;
+    @Column(name = "title", nullable = false)
+    private String title;  // Replace course_id with title
+
+    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
+    private String description;  // Add description field
+
+    @Column(name = "category", nullable = false)
+    private String category;  // Add category field
 
     @Column(name = "start_date")
     private Date start_date;
