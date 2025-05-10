@@ -22,30 +22,112 @@ const ProfilePage = () => {
   const [editingPostId, setEditingPost] = useState(null);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [userData, setUserData] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const isOwnProfile = currentUser?.username === profile?.username;
+  const [showLearningPlanModal, setShowLearningPlanModal] = useState(false);
+  const [learningPlans, setLearningPlans] = useState([]);
+
+
+  const MyLearningPlans = () => {
+  const [plans, setPlans] = useState([]);
+
+  const fetchLearningPlans = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/learning-plans/my-plans", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      const text = await res.text();
+      if (!res.ok) throw new Error("Error: " + res.status + " - " + text);
+
+      const json = JSON.parse(text);
+      setLearningPlans(json);
+    } catch (err) {
+      console.error("Error fetching learning plans:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await fetchCurrentUser();
+      await fetchProfile();
+      await fetchLearningPlans(); // ✅ Add here
+    };
+    init();
+  }, [username]);
+
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const res = await fetch("http://localhost:8080/api/learning-plans/my-plans", {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPlans(data);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  if (plans.length === 0) {
+    return <div className="text-center text-gray-600">No learning plans found.</div>;
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {plans.map((plan) => (
+        <div key={plan.id} className="bg-white rounded shadow p-4">
+          <h3 className="text-xl font-bold">{plan.title}</h3>
+          <p>{plan.objective}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
   const handleDelete = async (postId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this post?");
     if (!confirmDelete) return;
-
+ 
     try {
       const res = await fetch(`http://localhost:8080/api/v1/posts/${postId}/delete`, {
         method: "DELETE",
         credentials: "include",
       });
-
+ 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete post.");
-
+ 
       alert("Post deleted successfully.");
-
+ 
       setMyPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
     } catch (err) {
       alert("Error: " + err.message);
     }
   };
+
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/profile/${username}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setProfile(data);
+
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+
+
+
 
   const renderTabContent = () => {
     switch (currentTab) {
@@ -131,13 +213,14 @@ const ProfilePage = () => {
           </div>
         );
       case "learningPlans":
-        return <MyLearningPlans />;
+        return <MyLearningPlans plans={learningPlans} setPlans={setLearningPlans} />;
       case "learningProgress":
         return <LearningpList />; // Render the LearningpList component
       default:
         return null;
     }
   };
+
 
   const fetchProfile = async () => {
     try {
@@ -165,6 +248,7 @@ const ProfilePage = () => {
       console.error("Error fetching profile:", err.message);
     }
   };
+
 
   const fetchCurrentUser = async () => {
     try {
@@ -205,6 +289,28 @@ const ProfilePage = () => {
       console.error("Error fetching user posts:", err.message);
     }
   };
+
+  
+
+  const fetchLearningPlans = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/learning-plans/my-plans", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      const text = await res.text();
+      if (!res.ok) throw new Error("Error: " + res.status + " - " + text);
+
+      const json = JSON.parse(text);
+      setLearningPlans(json);
+    } catch (err) {
+      console.error("Error fetching learning plans:", err.message);
+    }
+  };
+
+  
 
   useEffect(() => {
     const init = async () => {
@@ -293,6 +399,42 @@ const ProfilePage = () => {
                 >
                   {profile.isFollowing ? "Unfollow" : "Follow"}
                 </button>
+
+
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white border rounded shadow-lg z-10">
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setShowPostModal(true);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Create Post
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setShowLearningPlanModal(true);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Create Learning Plan
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        alert("Coming soon");
+                      }}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Create Learning Progress Template
+                    </button>
+                  </div>
+                )}
+              </div>
+
+
               )}
 
               {isOwnProfile && (
@@ -458,6 +600,18 @@ const ProfilePage = () => {
           refreshProfile={fetchProfile}
         />
       )}
+
+      
+      {/* {location.pathname === "/learning-plans/create" && <LearningPlanModal />} */}
+      {showLearningPlanModal && (
+        <LearningPlanModal
+          onClose={() => {
+            setShowLearningPlanModal(false);
+            fetchLearningPlans(); // ✅ Re-fetch after modal close
+          }}
+        />
+      )}
+
 
       {location.pathname === "/learning-plans/create" && <LearningPlanModal />}
     </div>
