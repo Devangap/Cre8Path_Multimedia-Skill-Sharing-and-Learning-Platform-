@@ -73,6 +73,7 @@ public class AuthController {
         return authService.getUserDetails(principal);
     }
 
+
     //    @PostMapping("/complete-questionnaire")
 //    public ResponseEntity<String> completeQuestionnaire(@AuthenticationPrincipal Object principal) {
 //        return authService.completeQuestionnaire(principal);
@@ -90,6 +91,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
     @PostMapping("/complete-questionnaire")
+
     @Transactional
     public ResponseEntity<?> saveQuestionnaire(@RequestBody QuestionnaireResponse dto, Principal principal) {
         User user = userRepository.findByEmail(principal.getName()).orElseThrow();
@@ -112,6 +114,7 @@ public class AuthController {
         responseMap.put("firstTimeLogin", false);
 
         return ResponseEntity.ok(responseMap);
+
     }
 
 

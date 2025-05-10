@@ -91,10 +91,13 @@ const Home = ({ setUserEmail }) => {
   
           // 🔍 Use backend firstTimeLogin flag to determine route
           if (data.firstTimeLogin === true || data.firstTimeLogin === "true") {
+
             navigate("/questionnaire");
           } else {
+
             navigate("/feed");
           }
+          
         }
       }
     } catch (error) {

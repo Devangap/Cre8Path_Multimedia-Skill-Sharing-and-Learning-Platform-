@@ -68,6 +68,7 @@ const Feed = () => {
   return (
 
     <div className="min-h-screen bg-gray-50 px-8 py-10 ml-64">
+
   <h1 className="text-3xl font-bold text-gray-800 mb-8">Recommended for You</h1>
 
   {recommendedPosts.length === 0 ? (

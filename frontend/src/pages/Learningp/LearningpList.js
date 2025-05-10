@@ -1,48 +1,58 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { toast, Toaster } from 'react-hot-toast'; 
-import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Font Awesome icons
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from 'react-hot-toast';
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 const LearningpList = () => {
-  const [learningpList, setLearningpList] = useState([]);
+  const [learningPlans, setLearningPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const fetchLearningPlans = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/learningp/user-learningp", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ensure that cookies (if required) are included
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setLearningPlans(data); // Save data to the state
+      } else {
+        console.error("Failed to fetch learning plans");
+      }
+    } catch (err) {
+      console.error("Error fetching learning plans:", err.message);
+    } finally {
+      setLoading(false); // Set loading to false when data is fetched
+    }
+  };
+
   useEffect(() => {
-    axios.get('http://localhost:8080/api/learningp')
-      .then(response => setLearningpList(response.data))
-      .catch(error => console.error('Error fetching learning progress:', error));
+    fetchLearningPlans(); // Call the API on component mount
   }, []);
 
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this record?'); 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this learning plan?");
     if (!confirmDelete) return;
 
-    axios.delete(`http://localhost:8080/api/learningp/${id}`)
-      .then(() => {
-        setLearningpList(learningpList.filter(item => item.id !== id));
-        toast.success('Deleted successfully!'); 
-      })
-      .catch(error => {
-        console.error('Error deleting learning progress:', error);
-        toast.error('Failed to delete!'); 
+    try {
+      const res = await fetch(`http://localhost:8080/api/learningp/${id}`, {
+        method: "DELETE",
+        credentials: "include",
       });
+      
+      if (!res.ok) throw new Error("Failed to delete");
+      setLearningPlans((prev) => prev.filter((plan) => plan.id !== id));
+      toast.success("Deleted successfully"); // Update state
+    } catch (err) {
+      toast.error("Error: " + err.message);
+    }
   };
 
   const handleEdit = (id) => {
-    navigate(`/learningp/edit/${id}`);
-  };
-
-  // Function to calculate days left
-  const calculateDaysLeft = (start_date, end_date) => {
-    const startDate = new Date(start_date);
-    const endDate = new Date(end_date);
-    const today = new Date();
-    
-    const timeDiff = endDate.getTime() - today.getTime();
-    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
-    return daysLeft > 0 ? daysLeft : 0; // Return 0 if the course is already complete
+    navigate(`/learningp/edit/${id}`); // Navigate to edit page
   };
 
   const getStatusColor = (status) => {
@@ -60,45 +70,59 @@ const LearningpList = () => {
     }
   };
 
-  return (
-    <div className="p-6 ml-64">
-      {/* Toaster for toast notifications */}
-      <Toaster position="top-right" reverseOrder={false} />
-      
-      <h2 className="text-3xl font-bold mb-6 text-gray-900">Learning Progress</h2>
+  const calculateDaysLeft = (startDate, endDate) => {
+    const today = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const timeLeft = end - today;
+    const daysLeft = Math.ceil(timeLeft / (1000 * 3600 * 24));
+    return daysLeft < 0 ? 0 : daysLeft; // Return 0 if days left are negative
+  };
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {(Array.isArray(learningpList) ? learningpList : []).map((item) => {
-          const daysLeft = calculateDaysLeft(item.start_date, item.end_date);
-          
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (learningPlans.length === 0) return <p className="text-center text-gray-600">No learning plans yet.</p>;
+
+  return (
+    <div>
+    <Toaster position="top-right" />
+    <div className="max-w-7xl mx-auto mr-7 p-6">
+      <h2 className="text-2xl font-bold mb-6 text-center">My Learning Progress</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ml-20">
+        {learningPlans.map((plan) => {
+          const daysLeft = calculateDaysLeft(plan.start_date, plan.end_date);
           return (
-            <div key={item.id} className="bg-white p-6 border rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out relative transform hover:scale-105">
-              <div className="absolute top-2 right-2 flex space-x-2">
-             
-            
+            <div key={plan.id} className="bg-white rounded-lg shadow-md p-4 transition hover:shadow-lg w-72">
+              <h3 className="text-lg font-semibold mb-2 text-purple-700">{plan.title}</h3>
+              <p className="text-gray-600 mb-2">{plan.description}</p>
+              <p className="text-sm text-gray-500 mb-1">Category: {plan.category}</p>
+
+              <div className={`px-3 py-1 mb-2 text-sm font-semibold rounded-full ${getStatusColor(plan.status)} inline-block`}>
+                {plan.status}
               </div>
-              <h3 className="font-semibold text-xl text-gray-800">{item.topic}</h3>
-              <p className="text-sm mt-3 text-gray-600">Enroll Date: {item.start_date}</p>
-              <p className="text-sm mt-1 text-gray-600">Day Left: <span className="font-bold">{daysLeft} days</span></p> {/* Days left calculation */}
-              <p className={`text-xs mt-4 ${getStatusColor(item.status)} px-3 py-1 rounded-full inline-block`}>{item.status}</p> {/* Status badge */}
-              <div className="absolute bottom-4 right-4 flex space-x-2">
+
+              <div className="text-sm text-gray-500 mb-1">
+                <span className="font-bold">{daysLeft}</span> days left
+              </div>
+
+              <div className="flex gap-2 mt-2 justify-end">
                 <button
-                  onClick={() => handleEdit(item.id)}
-                  className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transform hover:scale-110 transition-transform"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transform hover:scale-110 transition-transform"
+                  className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600"
+                  onClick={() => handleDelete(plan.id)}
                 >
                   <FaTrashAlt />
+                </button>
+                <button
+                  className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
+                  onClick={() => handleEdit(plan.id)}
+                >
+                  <FaEdit />
                 </button>
               </div>
             </div>
           );
         })}
       </div>
+    </div>
     </div>
   );
 };

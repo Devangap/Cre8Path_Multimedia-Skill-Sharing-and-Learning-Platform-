@@ -58,9 +58,11 @@ const PostDetails = () => {
         const data = await res.json();
         setPostOwnerEmail(data.postOwnerEmail);
 
+
         setComments(data.comments);
       } catch (err) {
         console.error("Failed to fetch comments:", err.message);
+
 
       }
     };
@@ -69,6 +71,7 @@ const PostDetails = () => {
     fetchLikes();
     fetchComments();
   }, [id]);
+
 
 
   const toggleLike = async () => {
@@ -129,7 +132,9 @@ const PostDetails = () => {
     setComments(data.comments);
   };
 
+
   const renderComments = (commentList, level = 0) => {
+
 
     return commentList.map((c) => (
       <div key={c.id} className={`ml-${level * 4} mt-2`}>
