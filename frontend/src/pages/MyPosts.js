@@ -131,13 +131,19 @@ const MyPosts = ({ userEmail: initialUserEmail }) => {
                             className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
                             onClick={() => navigate(`/posts/${post.id}`)}
                         >
-                            {post.imageUrl && (
+                            {post.videoUrl ? (
+                                <video controls className="w-full h-40 object-cover rounded mb-4">
+                                    <source src={`${BASE_URL}${post.videoUrl}`} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            ) : post.imageUrls && post.imageUrls.length > 0 ? (
                                 <img
-                                    src={`${BASE_URL}${post.imageUrl}`}
+                                    src={`${BASE_URL}${post.imageUrls[0]}`}
                                     alt={post.title}
                                     className="w-full h-40 object-cover rounded mb-4"
                                 />
-                            )}
+                            ) : null}
+
                             <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
                             <p className="text-gray-600 mb-2">
                                 {post.description ? post.description.substring(0, 100) + '...' : 'No description'}

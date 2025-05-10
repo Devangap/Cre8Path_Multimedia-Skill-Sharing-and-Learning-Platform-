@@ -1,8 +1,11 @@
 package com.projectPAF.Cre8Path.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "posts")
@@ -21,8 +24,11 @@ public class Post {
     @Column(name = "category", length = 50)
     private String category;
 
-    @Column(name = "image_url", nullable = false, length = 255)
-    private String imageUrl;
+    @Column(name = "image_urls", length = 2000)
+    private String imageUrls; // Store as CSV in DB
+
+    @Column(name = "video_url", length = 1000)
+    private String videoUrl; // ➕ For storing video path
 
     @ElementCollection
     @Column(name = "tags")
@@ -39,10 +45,22 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     public Post() {
-        this.isPublic = true; // Default value
+        this.isPublic = true;
+    }
+
+    // Convert imageUrls CSV to list
+    @Transient
+    public List<String> getImageUrlList() {
+        if (imageUrls == null || imageUrls.isBlank()) return new ArrayList<>();
+        return Arrays.asList(imageUrls.split(","));
+    }
+
+    public void setImageUrls(List<String> urls) {
+        this.imageUrls = String.join(",", urls);
     }
 
     // Getters and setters
@@ -58,8 +76,8 @@ public class Post {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getImageUrls() { return imageUrls; }
+    public void setImageUrls(String imageUrls) { this.imageUrls = imageUrls; }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }
@@ -75,4 +93,7 @@ public class Post {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    public String getVideoUrl() { return videoUrl; }
+    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
 }
