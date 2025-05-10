@@ -95,7 +95,7 @@ const Questionnaire = () => {
       .then(() => {
         setSubmitted(true);    // ✅ show thank you screen
         localStorage.setItem("questionnaireCompleted", "true");
-        setTimeout(() => navigate("/profile-form"), 1500);   // nice delay
+        setTimeout(() => navigate("/profile-form"), 1000);   // nice delay
       })
       .catch((err) => {
         console.error(err);
@@ -111,7 +111,7 @@ const Questionnaire = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
         <h2 className="text-2xl font-bold text-green-600">
-          Thank you! Your preferences have been saved. 🎉
+         
         </h2>
       </div>
     );

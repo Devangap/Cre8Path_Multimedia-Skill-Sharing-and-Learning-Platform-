@@ -1,5 +1,6 @@
 package com.projectPAF.Cre8Path.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,12 +15,15 @@ public class QuestionnaireResponse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @JsonBackReference
     private User user;
 
+
     @Column(columnDefinition = "TEXT")
-    private String interests; // comma-separated or JSON string
+    private String interests;
 
     @Column(name = "skill_level")
     private String skillLevel;
