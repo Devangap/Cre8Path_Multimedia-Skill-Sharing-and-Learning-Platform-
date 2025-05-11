@@ -217,7 +217,6 @@ public class ProfileController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchProfiles(@RequestParam String query) {
-        List<Profile> profiles = profileService.searchProfiles(query); // Service method to search profiles
         System.out.println("🔍 Search called with query: " + query); // <-- Include here
 
         List<Profile> profiles = profileService.searchProfiles(query);
