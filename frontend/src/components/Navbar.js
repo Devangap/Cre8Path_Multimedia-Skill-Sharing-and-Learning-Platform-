@@ -30,6 +30,7 @@ const Sidebar = ({ userEmail }) => {
   };
   
   
+  
 
   // Handle Profile Deletion
   // const handleDeleteProfile = async () => {
