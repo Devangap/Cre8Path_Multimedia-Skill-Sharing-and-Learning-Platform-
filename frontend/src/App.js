@@ -107,7 +107,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import LearningpList from './pages/Learningp/LearningpList';
 import LearningpCreate from './pages/Learningp/LearningpCreate';
 import LearningpEdit from './pages/Learningp/LearningpEdit';
-import NotificationsList from './pages/Notifications/Notification.js';
+import NotificationComponent from './components/NotificationComponent';
 
 // LearningPlan
 import LearningPlanCreate from "./pages/LearningPlans/LearningPlanCreate";
@@ -158,7 +158,7 @@ const AppContent = () => {
         <Route path="/learningp/create" element={<LearningpCreate />} />
         <Route path="/learningp/edit/:id" element={<LearningpEdit />} />
         <Route path="/my-learning-plans" element={<MyLearningPlans />} />
-        <Route path="/notifications" element={<NotificationsList />} />
+        <Route path="/notifications" element={<NotificationComponent />} />
       </Routes>
     </>
   );

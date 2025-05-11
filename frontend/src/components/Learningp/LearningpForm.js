@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-
 const LearningpForm = ({ initialData = {}, onSubmit }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || '',
@@ -11,15 +10,65 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
     status: initialData.status || '',
   });
 
+  const [errors, setErrors] = useState({
+    title: '',
+    description: '',
+    category: '',
+    start_date: '',
+    end_date: '',
+    status: '',
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const validate = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    if (!formData.title) {
+      newErrors.title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!formData.description) {
+      newErrors.description = 'Description is required';
+      isValid = false;
+    }
+
+    if (!formData.category) {
+      newErrors.category = 'Category is required';
+      isValid = false;
+    }
+
+    if (!formData.start_date) {
+      newErrors.start_date = 'Start date is required';
+      isValid = false;
+    }
+
+    if (formData.end_date && formData.start_date > formData.end_date) {
+      newErrors.end_date = 'End date must be after start date';
+      isValid = false;
+    }
+
+    if (!formData.status) {
+      newErrors.status = 'Status is required';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form data before submission:', formData);
-    onSubmit(formData); // Call onSubmit from parent component
+
+    if (validate()) {
+      console.log('Form data before submission:', formData);
+      onSubmit(formData); // Call onSubmit from parent component
+    }
   };
 
   return (
@@ -35,8 +84,8 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           value={formData.title}
           onChange={handleChange}
           className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
-          required
         />
+        {errors.title && <span className="text-red-500 text-sm">{errors.title}</span>}
 
         {/* Description */}
         <label className="block text-sm font-medium text-gray-700">Description</label>
@@ -45,8 +94,8 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           value={formData.description}
           onChange={handleChange}
           className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
-          required
         />
+        {errors.description && <span className="text-red-500 text-sm">{errors.description}</span>}
 
         {/* Category */}
         <label className="block text-sm font-medium text-gray-700">Category</label>
@@ -55,7 +104,6 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           value={formData.category}
           onChange={handleChange}
           className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
-          required
         >
           <option value="">Select Category</option>
           <option value="Photography">Photography</option>
@@ -68,6 +116,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           <option value="Advertising">Advertising</option>
           <option value="Marketing">Marketing</option>
         </select>
+        {errors.category && <span className="text-red-500 text-sm">{errors.category}</span>}
 
         {/* Start Date */}
         <label className="block text-sm font-medium text-gray-700">Start Date</label>
@@ -78,6 +127,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           onChange={handleChange}
           className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
         />
+        {errors.start_date && <span className="text-red-500 text-sm">{errors.start_date}</span>}
 
         {/* End Date */}
         <label className="block text-sm font-medium text-gray-700">End Date</label>
@@ -88,6 +138,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           onChange={handleChange}
           className="mb-4 w-full rounded-md border py-1.5 px-3 shadow-sm ring-1 ring-gray-300"
         />
+        {errors.end_date && <span className="text-red-500 text-sm">{errors.end_date}</span>}
 
         {/* Status */}
         <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -103,6 +154,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           <option value="Incomplete">Incomplete</option>
           <option value="Completed">Completed</option>
         </select>
+        {errors.status && <span className="text-red-500 text-sm">{errors.status}</span>}
 
         <div className="flex justify-between">
           <button
@@ -115,6 +167,7 @@ const LearningpForm = ({ initialData = {}, onSubmit }) => {
           <button
             type="submit"
             className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-400"
+            disabled={Object.keys(errors).some((key) => errors[key])}
           >
             Submit
           </button>

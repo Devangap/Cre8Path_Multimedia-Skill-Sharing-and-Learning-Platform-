@@ -18,6 +18,7 @@ public class NotificationService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    // Create and send notification
     public Notification createAndSend(Long recipientId, String message, String type, Long referenceId) {
         Notification notif = new Notification();
         notif.setRecipientId(recipientId);
@@ -27,14 +28,17 @@ public class NotificationService {
         notif.setCreatedAt(LocalDateTime.now());
         Notification saved = notificationRepo.save(notif);
 
-        messagingTemplate.convertAndSend("/topic/notifications/" + recipientId, saved);
+        // Send notification to the user via WebSocket
+        messagingTemplate.convertAndSend("/topic/notifications/" + recipientId, saved); // Send to WebSocket topic
         return saved;
     }
 
+    // Get notifications for a user
     public List<Notification> getNotifications(Long userId) {
         return notificationRepo.findByRecipientIdOrderByCreatedAtDesc(userId);
     }
 
+    // Mark all notifications as read
     public void markAllAsRead(Long userId) {
         List<Notification> notifs = notificationRepo.findByRecipientIdOrderByCreatedAtDesc(userId);
         notifs.forEach(n -> n.setRead(true));

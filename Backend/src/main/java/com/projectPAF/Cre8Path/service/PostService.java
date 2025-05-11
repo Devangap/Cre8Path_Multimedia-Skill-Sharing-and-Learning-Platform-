@@ -22,8 +22,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
+
 @RequiredArgsConstructor
+@Service
 public class PostService {
 
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
@@ -34,7 +35,10 @@ public class PostService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
+
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
+    
 
     public ResponseEntity<Map<String, String>> createPost(PostCreateDTO postDTO, OAuth2User oauth2User, Principal principal) {
         Map<String, String> response = new HashMap<>();
@@ -251,12 +255,14 @@ public class PostService {
 
         if (likeRepository.existsByPostAndUser(post, user)) {
             likeRepository.deleteByPostAndUser(post, user);
+            notificationService.createAndSend(post.getUser().getId(), "Your post was unliked by " + user.getEmail(), "LIKE_REMOVED", postId);
             return ResponseEntity.ok(Map.of("message", "Unliked"));
         } else {
             Like like = new Like();
             like.setPost(post);
             like.setUser(user);
             likeRepository.save(like);
+             notificationService.createAndSend(post.getUser().getId(), "Your post was liked by " + user.getEmail(), "LIKE", postId);
             return ResponseEntity.ok(Map.of("message", "Liked"));
         }
     }
@@ -323,6 +329,8 @@ public class PostService {
         comment.setUser(user);
         comment.setCreatedAt(LocalDateTime.now());
         commentRepository.save(comment);
+
+        notificationService.createAndSend(post.getUser().getId(), "Your post has a new comment from " + email, "COMMENT", postId);
 
         return ResponseEntity.ok(Map.of("message", "Comment added"));
     }

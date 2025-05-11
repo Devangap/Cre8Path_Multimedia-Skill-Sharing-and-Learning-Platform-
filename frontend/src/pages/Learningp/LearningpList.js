@@ -94,7 +94,7 @@ const LearningpList = () => {
             <div key={plan.id} className="bg-white rounded-lg shadow-md p-4 transition hover:shadow-lg w-72 border-2">
               <h3 className="text-lg font-semibold mb-2 text-purple-700">{plan.title}</h3>
               <p className="text-gray-600 mb-2">{plan.description}</p>
-              <p className="text-sm text-gray-500 mb-1">Category: {plan.category}</p>
+              <p className="text-sm font-bold text-gray-500 mb-2">Category: {plan.category}</p>
 
               <div className={`px-3 py-1 mb-2 text-sm font-semibold rounded-full ${getStatusColor(plan.status)} inline-block`}>
                 {plan.status}
@@ -106,13 +106,13 @@ const LearningpList = () => {
 
               <div className="flex gap-2 mt-2 justify-end">
                 <button
-                  className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600"
+                  className="bg-purple-500 text-white p-3 rounded-full hover:bg-red-600"
                   onClick={() => handleDelete(plan.id)}
                 >
                   <FaTrashAlt />
                 </button>
                 <button
-                  className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
+                  className="bg-purple-500 text-white p-3 rounded-full hover:bg-blue-600"
                   onClick={() => handleEdit(plan.id)}
                 >
                   <FaEdit />

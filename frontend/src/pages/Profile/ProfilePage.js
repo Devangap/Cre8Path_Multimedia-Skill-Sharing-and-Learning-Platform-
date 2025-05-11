@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import PostUpload from "../../components/PostUpload";
 import EditPostModal from "../EditPost";
-
+import { FaBell } from 'react-icons/fa';
 import MyLearningPlans from "../LearningPlans/MyLearningPlans";
 import LearningPlanModal from "../LearningPlans/LearningPlanModal";
 
 import EditProfileModal from "./EditProfileModal"; 
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
-import LearningpList from '../Learningp/LearningpList'; // Import LearningpList
+import LearningpList from '../Learningp/LearningpList';
+import NotificationComponent from "../../components/NotificationComponent"; // Import LearningpList
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -23,6 +24,7 @@ const ProfilePage = () => {
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false); 
 
   const isOwnProfile = currentUser?.username === profile?.username;
 
@@ -45,6 +47,10 @@ const ProfilePage = () => {
     } catch (err) {
       alert("Error: " + err.message);
     }
+  };
+
+    const togglePanel = () => {
+    setIsPanelOpen(!isPanelOpen);
   };
 
   const renderTabContent = () => {
@@ -457,6 +463,19 @@ const ProfilePage = () => {
       )}
 
       {location.pathname === "/learning-plans/create" && <LearningPlanModal />}
+
+                  <button
+        onClick={togglePanel}
+        className="fixed top-10 right-5 p-4  text-white rounded-full shadow-md hover:bg-blue-600 transition"
+      style={{ backgroundColor: "#A367B1" }}
+      >
+        <FaBell className="text-xl" /> {/* The bell icon inside the button */}
+      </button>
+
+      {isPanelOpen && (
+        <NotificationComponent togglePanel={togglePanel} />
+      )}
+
     </div>
   );
 };
