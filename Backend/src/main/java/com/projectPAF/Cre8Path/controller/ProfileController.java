@@ -218,7 +218,19 @@ public class ProfileController {
     @GetMapping("/search")
     public ResponseEntity<?> searchProfiles(@RequestParam String query) {
         List<Profile> profiles = profileService.searchProfiles(query); // Service method to search profiles
-        return ResponseEntity.ok(profiles);
+        System.out.println("🔍 Search called with query: " + query); // <-- Include here
+
+        List<Profile> profiles = profileService.searchProfiles(query);
+
+        List<ProfileDTO> result = profiles.stream().map(profile -> {
+            ProfileDTO dto = new ProfileDTO();
+            dto.setUsername(profile.getUsername());
+            dto.setFullName(profile.getFullName());
+            dto.setProfilePictureUrl(profile.getProfilePictureUrl());
+            return dto;
+        }).toList();
+
+        return ResponseEntity.ok(result);
     }
 
 
